@@ -186,4 +186,4 @@ coordenação como referência, mas podem adicionar critérios próprios)
 
 ### Aprovação da professora orientadora
 
-Lauriana Paludo <br> Data: 01/08/2026
+Lauriana Paludo <br> Data: **/**/2026
