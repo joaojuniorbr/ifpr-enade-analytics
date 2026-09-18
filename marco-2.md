@@ -75,7 +75,7 @@ erDiagram
         int SimuladoKey FK
         string RespostaDada
         int Acertou
-        float TempoRespostaSegundos
+        int TempoRespostaSegundos
     }
 
     Dim_Tempo {
@@ -119,8 +119,8 @@ erDiagram
 | Fato_Respostas    | SimuladoKey           | Inteiro (FK)  | Relaciona a resposta à aplicação do simulado.                                         |
 | Fato_Respostas    | RespostaDada          | Texto         | Alternativa/resposta registrada pelo participante.                                    |
 | Fato_Respostas    | Acertou               | Inteiro (0/1) | Contador aditivo: 1 para resposta correta e 0 para incorreta.                         |
-| Fato_Respostas    | TempoRespostaSegundos | Número        | Tempo gasto na resposta, quando disponível na coleta.                                 |
-| Dim_Tempo         | TempoKey              | Inteiro (PK)  | Chave substituta da dimensão de tempo (YYYYMMDD).                                     |
+| Fato_Respostas    | TempoRespostaSegundos | Inteiro       | Tempo gasto na resposta, em segundos inteiros (sem decimal).                           |
+| Dim_Tempo         | TempoKey              | Inteiro (PK)  | Chave substituta da dimensão de tempo (1, 2, …).                                       |
 | Dim_Tempo         | Data                  | Data          | Data da aplicação/resposta.                                                           |
 | Dim_Tempo         | Ano                   | Inteiro       | Ano da aplicação.                                                                     |
 | Dim_Tempo         | Mes                   | Inteiro       | Número do mês.                                                                        |

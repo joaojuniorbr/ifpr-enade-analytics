@@ -1,33 +1,33 @@
-QuestaoKey,CodigoQuestao,EixoTematico,NivelDificuldade
-1,Q01,Algoritmos,Fácil
-2,Q02,Algoritmos,Médio
-3,Q03,Arquitetura de computadores,Médio
-4,Q04,Arquitetura de computadores,Difícil
-5,Q05,Sistemas operacionais,Difícil
-6,Q06,Sistemas operacionais,Fácil
-7,Q07,Banco de dados,Fácil
-8,Q08,Banco de dados,Médio
-9,Q09,Engenharia de software,Médio
-10,Q10,Engenharia de software,Difícil
-11,Q11,Gerência de projetos,Difícil
-12,Q12,Gerência de projetos,Fácil
-13,Q13,Gestão de pessoas,Fácil
-14,Q14,Gestão de pessoas,Médio
-15,Q15,Gestão dos serviços de TI,Médio
-16,Q16,Gestão dos serviços de TI,Difícil
-17,Q17,Tecnologias para inteligência de negócio,Difícil
-18,Q18,Tecnologias para inteligência de negócio,Fácil
-19,Q19,Governança de tecnologia da informação,Fácil
-20,Q20,Governança de tecnologia da informação,Médio
-21,Q21,Gestão estratégica organizacional,Médio
-22,Q22,Gestão estratégica organizacional,Difícil
-23,Q23,Processos organizacionais,Difícil
-24,Q24,Processos organizacionais,Fácil
-25,Q25,Redes de computadores,Fácil
-26,Q26,Redes de computadores,Médio
-27,Q27,Segurança da informação,Médio
-28,Q28,Segurança da informação,Difícil
-29,Q29,Sistemas de informações gerenciais,Difícil
-30,Q30,Sistemas de informações gerenciais,Fácil
-31,Q31,"Ética, tecnologia e sociedade",Fácil
-32,Q32,"Ética, tecnologia e sociedade",Médio
+"QuestaoKey","CodigoQuestao","EixoTematico","NivelDificuldade"
+1,"Q01","Algoritmos","Fácil"
+2,"Q02","Algoritmos","Médio"
+3,"Q03","Arquitetura de computadores","Médio"
+4,"Q04","Arquitetura de computadores","Difícil"
+5,"Q05","Sistemas operacionais","Difícil"
+6,"Q06","Sistemas operacionais","Fácil"
+7,"Q07","Banco de dados","Fácil"
+8,"Q08","Banco de dados","Médio"
+9,"Q09","Engenharia de software","Médio"
+10,"Q10","Engenharia de software","Difícil"
+11,"Q11","Gerência de projetos","Difícil"
+12,"Q12","Gerência de projetos","Fácil"
+13,"Q13","Gestão de pessoas","Fácil"
+14,"Q14","Gestão de pessoas","Médio"
+15,"Q15","Gestão dos serviços de TI","Médio"
+16,"Q16","Gestão dos serviços de TI","Difícil"
+17,"Q17","Tecnologias para inteligência de negócio","Difícil"
+18,"Q18","Tecnologias para inteligência de negócio","Fácil"
+19,"Q19","Governança de tecnologia da informação","Fácil"
+20,"Q20","Governança de tecnologia da informação","Médio"
+21,"Q21","Gestão estratégica organizacional","Médio"
+22,"Q22","Gestão estratégica organizacional","Difícil"
+23,"Q23","Processos organizacionais","Difícil"
+24,"Q24","Processos organizacionais","Fácil"
+25,"Q25","Redes de computadores","Fácil"
+26,"Q26","Redes de computadores","Médio"
+27,"Q27","Segurança da informação","Médio"
+28,"Q28","Segurança da informação","Difícil"
+29,"Q29","Sistemas de informações gerenciais","Difícil"
+30,"Q30","Sistemas de informações gerenciais","Fácil"
+31,"Q31","Ética, tecnologia e sociedade","Fácil"
+32,"Q32","Ética, tecnologia e sociedade","Médio"

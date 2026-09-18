@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera CSVs do esquema estrela para carga no Power BI."""
+"""Gera CSVs (Power BI / MySQL) e carga.sql (INSERT) alinhados ao esquema."""
 
 from __future__ import annotations
 
@@ -31,7 +31,6 @@ EIXOS = [
     "Ética, tecnologia e sociedade",
 ]
 
-# Probabilidade-base de acerto por eixo (piloto sintético, para mineração no Marco 3)
 ACERTO_EIXO = {
     "Algoritmos": 0.45,
     "Arquitetura de computadores": 0.50,
@@ -53,26 +52,49 @@ ACERTO_EIXO = {
 
 AJUSTE_DIFICULDADE = {"Fácil": 0.12, "Médio": 0.00, "Difícil": -0.12}
 EVOLUCAO_SIMULADO = {1: 0.00, 2: 0.10}
-
 ALTERNATIVAS = ["A", "B", "C", "D", "E"]
-NOMES_MES = {
-    9: "Setembro",
-    10: "Outubro",
-}
 
 
-def escrever(nome: str, campos: list[str], linhas: list[dict]) -> None:
+def sql_literal(valor) -> str:
+    if valor is None:
+        return "NULL"
+    if isinstance(valor, bool):
+        return "1" if valor else "0"
+    if isinstance(valor, int) and not isinstance(valor, bool):
+        return str(valor)
+    return "'" + str(valor).replace("\\", "\\\\").replace("'", "''") + "'"
+
+
+def escrever_csv(nome: str, campos: list[str], linhas: list[dict]) -> None:
     caminho = OUT / nome
     with caminho.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=campos)
+        writer = csv.DictWriter(
+            fh,
+            fieldnames=campos,
+            quoting=csv.QUOTE_NONNUMERIC,
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(linhas)
+
+
+def escrever_insert(fh, tabela: str, linhas: list[dict]) -> None:
+    if not linhas:
+        return
+    cols = list(linhas[0].keys())
+    fh.write(f"INSERT INTO {tabela} ({', '.join(cols)}) VALUES\n")
+    valores = []
+    for linha in linhas:
+        items = ", ".join(sql_literal(linha[c]) for c in cols)
+        valores.append(f"({items})")
+    fh.write(",\n".join(valores))
+    fh.write(";\n\n")
 
 
 def main() -> None:
     dim_tempo = [
         {
-            "TempoKey": 20260910,
+            "TempoKey": 1,
             "Data": "2026-09-10",
             "Ano": 2026,
             "Mes": 9,
@@ -80,7 +102,7 @@ def main() -> None:
             "SemanaSemestre": 8,
         },
         {
-            "TempoKey": 20261022,
+            "TempoKey": 2,
             "Data": "2026-10-22",
             "Ano": 2026,
             "Mes": 10,
@@ -89,15 +111,14 @@ def main() -> None:
         },
     ]
 
-    dim_aluno = []
-    for i in range(1, 13):
-        dim_aluno.append(
-            {
-                "AlunoKey": i,
-                "CodigoAlunoAnonimo": f"Aluno_{i:03d}",
-                "TurmaGrupo": "TGI Noturno A" if i <= 6 else "TGI Noturno B",
-            }
-        )
+    dim_aluno = [
+        {
+            "AlunoKey": i,
+            "CodigoAlunoAnonimo": f"Aluno_{i:03d}",
+            "TurmaGrupo": "TGI Noturno A" if i <= 6 else "TGI Noturno B",
+        }
+        for i in range(1, 13)
+    ]
 
     dim_questao = []
     gabarito: dict[int, str] = {}
@@ -128,13 +149,13 @@ def main() -> None:
             "SimuladoKey": 2,
             "CodigoSimulado": "SIM-02",
             "NumeroAplicacao": 2,
-            "DescricaoSimulado": "Segundo simulado — evolução no semestre",
+            "DescricaoSimulado": "Segundo simulado - evolucao no semestre",
         },
     ]
 
     fato = []
     resposta_key = 1
-    tempo_por_simulado = {1: 20260910, 2: 20261022}
+    tempo_por_simulado = {1: 1, 2: 2}
 
     for simulado in dim_simulado:
         simulado_key = simulado["SimuladoKey"]
@@ -155,6 +176,7 @@ def main() -> None:
                 else:
                     resposta = random.choice([a for a in ALTERNATIVAS if a != correta])
                 base_tempo = 25 if nivel == "Fácil" else 55 if nivel == "Médio" else 90
+                segundos = max(5, int(round(random.gauss(base_tempo, 12))))
                 fato.append(
                     {
                         "RespostaKey": resposta_key,
@@ -164,20 +186,33 @@ def main() -> None:
                         "SimuladoKey": simulado_key,
                         "RespostaDada": resposta,
                         "Acertou": acertou,
-                        "TempoRespostaSegundos": round(random.gauss(base_tempo, 12), 1),
+                        "TempoRespostaSegundos": segundos,
                     }
                 )
                 resposta_key += 1
 
-    escrever("Dim_Tempo.csv", list(dim_tempo[0].keys()), dim_tempo)
-    escrever("Dim_Aluno_Anonimo.csv", list(dim_aluno[0].keys()), dim_aluno)
-    escrever("Dim_Questao.csv", list(dim_questao[0].keys()), dim_questao)
-    escrever("Dim_Simulado.csv", list(dim_simulado[0].keys()), dim_simulado)
-    escrever("Fato_Respostas.csv", list(fato[0].keys()), fato)
+    escrever_csv("Dim_Tempo.csv", list(dim_tempo[0].keys()), dim_tempo)
+    escrever_csv("Dim_Aluno_Anonimo.csv", list(dim_aluno[0].keys()), dim_aluno)
+    escrever_csv("Dim_Questao.csv", list(dim_questao[0].keys()), dim_questao)
+    escrever_csv("Dim_Simulado.csv", list(dim_simulado[0].keys()), dim_simulado)
+    escrever_csv("Fato_Respostas.csv", list(fato[0].keys()), fato)
+
+    carga = Path(__file__).parent / "carga.sql"
+    with carga.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write("-- Carga do seed sintetico. Rode DEPOIS de esquema-estrela.sql.\n")
+        fh.write("SET NAMES utf8mb4;\n")
+        fh.write("SET FOREIGN_KEY_CHECKS = 0;\n\n")
+        escrever_insert(fh, "Dim_Tempo", dim_tempo)
+        escrever_insert(fh, "Dim_Aluno_Anonimo", dim_aluno)
+        escrever_insert(fh, "Dim_Questao", dim_questao)
+        escrever_insert(fh, "Dim_Simulado", dim_simulado)
+        escrever_insert(fh, "Fato_Respostas", fato)
+        fh.write("SET FOREIGN_KEY_CHECKS = 1;\n")
 
     total_acertos = sum(r["Acertou"] for r in fato)
     print(f"Gerados {len(fato)} fatos em {OUT}")
     print(f"Taxa de acerto geral: {total_acertos / len(fato):.1%}")
+    print(f"SQL de carga: {carga}")
 
 
 if __name__ == "__main__":

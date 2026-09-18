@@ -1,3 +1,3 @@
-TempoKey,Data,Ano,Mes,NomeMes,SemanaSemestre
-20260910,2026-09-10,2026,9,Setembro,8
-20261022,2026-10-22,2026,10,Outubro,14
+"TempoKey","Data","Ano","Mes","NomeMes","SemanaSemestre"
+1,"2026-09-10",2026,9,"Setembro",8
+2,"2026-10-22",2026,10,"Outubro",14

@@ -3,7 +3,7 @@
 // Importar em https://dbdiagram.io
 
 Table Dim_Tempo {
-  TempoKey integer [pk, note: 'YYYYMMDD']
+  TempoKey integer [pk]
   Data date [unique, not null]
   Ano integer [not null]
   Mes integer [not null]
@@ -39,5 +39,5 @@ Table Fato_Respostas {
   SimuladoKey integer [not null, ref: > Dim_Simulado.SimuladoKey]
   RespostaDada varchar [not null]
   Acertou integer [not null, note: 'Contador aditivo 0/1 — taxa = SUM/COUNT']
-  TempoRespostaSegundos float
+  TempoRespostaSegundos integer
 }
