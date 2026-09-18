@@ -6,8 +6,8 @@
 
 | **Entrega**            | Até o final da Semana 18 (Marco 5)                                             |
 | ---------------------- | ------------------------------------------------------------------------------ |
-| **Equipe**             | João Junior, Ava Moreira, Leandro Zeni                                         |
-| **Responsável principal** | Ava Moreira                                                                 |
+| **Equipe**             | João Junior, Alessandro Sondey, Leandro Zeni                                         |
+| **Responsável principal** | Alessandro Sondey                                                                 |
 | **Base de referência** | [Marco 4](./marco-4.md) · [Marco 2](./marco-2.md) · Briefing da coordenação   |
 
 _Este documento descreve a integração dos dados cadastrais (módulo tipo ERP
@@ -43,4 +43,4 @@ acadêmico) com o modelo de dados do projeto. Requisitos relacionados: RF03, RNF
 
 | **Equipe do projeto**                  | **Professora orientadora** |
 | -------------------------------------- | -------------------------- |
-| João Junior, Ava Moreira, Leandro Zeni | Lauriana Paludo            |
+| João Junior, Alessandro Sondey, Leandro Zeni | Lauriana Paludo            |

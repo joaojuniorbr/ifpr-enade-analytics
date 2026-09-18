@@ -37,7 +37,7 @@ Desenvolver uma solução de BI completa — **do dado bruto ao dashboard** — 
 | Integrante | Papel principal | Contato |
 | --- | --- | --- |
 | João Junior | Modelagem de dados / liderança técnica | negrelis@gmail.com |
-| Ava Moreira | Levantamento de requisitos / LGPD e documentação | avamoreira3@gmail.com |
+| Alessandro Sondey | Levantamento de requisitos / LGPD e documentação | avamoreira3@gmail.com |
 | Leandro Zeni | Dashboard / storytelling de dados | leandro-zeni@hotmail.com |
 
 ---

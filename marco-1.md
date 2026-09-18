@@ -6,7 +6,7 @@
 
 | **Entrega**            | Até o final da Semana 4 (Marco 1)                                              |
 | ---------------------- | ------------------------------------------------------------------------------ |
-| **Equipe**             | João Junior, Ava Moreira, Leandro Zeni                                         |
+| **Equipe**             | João Junior, Alessandro Sondey, Leandro Zeni                                         |
 | **Base de referência** | Briefing_Projeto_ENADE_Analytics.docx e Termo de Abertura do Projeto (Marco 0) |
 
 _Esta matriz aplica a fase de "Concepção" do Modelo de Simon ao Projeto
@@ -69,4 +69,4 @@ fazer (ver Seção 4 do briefing):
 
 | **Equipe do projeto**                  | **Professora orientadora** |
 | -------------------------------------- | -------------------------- |
-| João Junior, Ava Moreira, Leandro Zeni | Lauriana Paludo            |
+| João Junior, Alessandro Sondey, Leandro Zeni | Lauriana Paludo            |

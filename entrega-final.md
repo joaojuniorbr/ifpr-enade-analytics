@@ -6,7 +6,7 @@
 
 | **Entrega**            | Semanas 19–20 — apresentação à coordenação                                     |
 | ---------------------- | ------------------------------------------------------------------------------ |
-| **Equipe**             | João Junior, Ava Moreira, Leandro Zeni                                         |
+| **Equipe**             | João Junior, Alessandro Sondey, Leandro Zeni                                         |
 | **Base de referência** | Todos os marcos anteriores · Briefing da coordenação                           |
 
 _Este documento consolida a entrega final do projeto: aplicação completa, manual
@@ -75,4 +75,4 @@ Checklist dos componentes entregues:
 
 | **Equipe do projeto**                  | **Coordenação / Professora orientadora** |
 | -------------------------------------- | ---------------------------------------- |
-| João Junior, Ava Moreira, Leandro Zeni | Lauriana Paludo                          |
+| João Junior, Alessandro Sondey, Leandro Zeni | Lauriana Paludo                          |

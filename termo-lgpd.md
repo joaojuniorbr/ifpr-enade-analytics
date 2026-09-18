@@ -45,7 +45,7 @@ ações de reforço antes da prova oficial do INEP.
 
 ## 5. Equipe responsável
 
-**Equipe do projeto:** João Junior, Ava Moreira, Leandro Zeni — ENADE Analytics
+**Equipe do projeto:** João Junior, Alessandro Sondey, Leandro Zeni — ENADE Analytics
 
 **Contato:** _[preencher — e-mail ou canal de contato da equipe]_
 

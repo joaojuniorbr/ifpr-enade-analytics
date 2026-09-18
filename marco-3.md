@@ -6,7 +6,7 @@
 
 | **Entrega**               | Até o final da Semana 13 (Marco 3)                                          |
 | ------------------------- | --------------------------------------------------------------------------- |
-| **Equipe**                | João Junior, Ava Moreira, Leandro Zeni                                      |
+| **Equipe**                | João Junior, Alessandro Sondey, Leandro Zeni                                      |
 | **Responsável principal** | Leandro Zeni                                                                |
 | **Base de referência**    | [Marco 2](./marco-2.md) · [Marco 1](./marco-1.md) · Briefing da coordenação |
 
@@ -51,4 +51,4 @@ RF05._
 
 | **Equipe do projeto**                  | **Professora orientadora** |
 | -------------------------------------- | -------------------------- |
-| João Junior, Ava Moreira, Leandro Zeni | Lauriana Paludo            |
+| João Junior, Alessandro Sondey, Leandro Zeni | Lauriana Paludo            |

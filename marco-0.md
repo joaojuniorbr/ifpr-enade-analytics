@@ -7,7 +7,7 @@
 | **Entrega**         | Até o final da Semana 2 (Marco 0)                       |
 | ------------------- | ------------------------------------------------------- |
 | **Nome do projeto** | ENADE Analytics                                         |
-| **Integrantes**     | 1. João Junior <br> 2. Ava Moreira <br> 3. Leandro Zeni |
+| **Integrantes**     | 1. João Junior <br> 2. Alessandro Sondey <br> 3. Leandro Zeni |
 | **Data**            | 14/08/2026                                              |
 
 _Este termo de abertura é o entregável do Marco 0 do Projeto Integrador. Ele
@@ -81,7 +81,7 @@ conhecimento dos concluintes por eixo temático do componente específico do ENA
 | **Integrante** | **Papel principal no projeto**                                 | **Contato**   |
 | -------------- | -------------------------------------------------------------- | ------------- |
 | João Junior    | Modelagem de dados / liderança técnica          | negrelis@gmail.com |
-| Ava Moreira    | Levantamento de requisitos / LGPD e documentação | avamoreira3@gmail.com |
+| Alessandro Sondey    | Levantamento de requisitos / LGPD e documentação | avamoreira3@gmail.com |
 | Leandro Zeni   | Dashboard / storytelling de dados                | leandro-zeni@hotmail.com |
 
 ## 5. Entregáveis por marco
@@ -92,12 +92,12 @@ briefing da coordenação.
 | **Marco** | **Semana** | **Entregável**                     | **Responsável principal** |
 | --------- | ---------- | ---------------------------------- | ------------------------- |
 | M0        | 2          | Termo de abertura | João J.             |
-| M1        | 4          | Matriz de requisitos + LGPD        | Ava L.              |
+| M1        | 4          | Matriz de requisitos + LGPD        | Alessandro S.              |
 | M2        | 8          | Modelo de dados (DW)               | João J.             |
 | M3        | 13         | Mineração de dados / lacunas       | Leandro Z.             |
 | M4        | 16         | Dashboard                          | Leandro Z.             |
-| M5        | 18         | Integração de dados cadastrais     | Ava L.             |
-| Final     | 19-20      | Entrega completa + apresentação    | João J. / Ava L. / Leandro Z.             |
+| M5        | 18         | Integração de dados cadastrais     | Alessandro S.             |
+| Final     | 19-20      | Entrega completa + apresentação    | João J. / Alessandro S. / Leandro Z.             |
 
 ## 6. Premissas e restrições
 

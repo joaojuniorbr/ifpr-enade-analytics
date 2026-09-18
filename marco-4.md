@@ -6,7 +6,7 @@
 
 | **Entrega**            | Até o final da Semana 16 (Marco 4)                                             |
 | ---------------------- | ------------------------------------------------------------------------------ |
-| **Equipe**             | João Junior, Ava Moreira, Leandro Zeni                                         |
+| **Equipe**             | João Junior, Alessandro Sondey, Leandro Zeni                                         |
 | **Responsável principal** | Leandro Zeni                                                                |
 | **Base de referência** | [Marco 3](./marco-3.md) · [Marco 1](./marco-1.md) · Briefing da coordenação   |
 
@@ -52,4 +52,4 @@ Coordenação do curso — pessoas **sem conhecimento técnico em Power BI**.
 
 | **Equipe do projeto**                  | **Professora orientadora** |
 | -------------------------------------- | -------------------------- |
-| João Junior, Ava Moreira, Leandro Zeni | Lauriana Paludo            |
+| João Junior, Alessandro Sondey, Leandro Zeni | Lauriana Paludo            |
