@@ -81,7 +81,7 @@ conhecimento dos concluintes por eixo temático do componente específico do ENA
 | **Integrante** | **Papel principal no projeto**                                 | **Contato**   |
 | -------------- | -------------------------------------------------------------- | ------------- |
 | João Junior    | Modelagem de dados / liderança técnica          | negrelis@gmail.com |
-| Alessandro Sondey    | Levantamento de requisitos / LGPD e documentação | avamoreira3@gmail.com |
+| Alessandro Sondey    | Levantamento de requisitos / LGPD e documentação | sondeyalessandro@gmail.com |
 | Leandro Zeni   | Dashboard / storytelling de dados                | leandro-zeni@hotmail.com |
 
 ## 5. Entregáveis por marco
