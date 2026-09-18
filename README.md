@@ -80,7 +80,7 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | --- | --- | --- | --- | --- |
 | **Marco 0** | 2 | Termo de abertura do projeto (escopo preliminar) | [marco-0.md](./marco-0.md) | Concluído |
 | **Marco 1** | 4 | Matriz de requisitos + termo de consentimento (LGPD) | [marco-1.md](./marco-1.md) · [termo-lgpd.md](./termo-lgpd.md) | Concluído |
-| **Marco 2** | 8 | Modelo de dados (Data Warehouse) do banco de questões/respostas | [marco-2.md](./marco-2.md) | Em andamento |
+| **Marco 2** | 8 | Modelo de dados (Data Warehouse) do banco de questões/respostas | [marco-2.md](./marco-2.md) | Modelo dimensional definido |
 | **Marco 3** | 13 | Relatório de clusters / lacunas de conhecimento por eixo | [marco-3.md](./marco-3.md) | Pendente |
 | **Marco 4** | 16 | Dashboard com storytelling de dados | [marco-4.md](./marco-4.md) | Pendente |
 | **Marco 5** | 18 | Integração dos dados cadastrais (módulo tipo ERP acadêmico) | [marco-5.md](./marco-5.md) | Pendente |

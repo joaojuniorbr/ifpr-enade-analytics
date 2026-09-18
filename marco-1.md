@@ -60,7 +60,7 @@ fazer (ver Seção 4 do briefing):
 
 | **Marco**      | **Entregável**                 | **Requisitos relacionados (IDs)**   |
 | -------------- | ------------------------------ | ----------------------------------- |
-| M2 (Semana 8)  | Modelo de dados (DW)           | RF01, RF06, RNF01                   |
+| M2 (Semana 8)  | Modelo de dados (DW)           | RF01–RF06, RF08, RNF01, RNF02       |
 | M3 (Semana 13) | Mineração de dados / lacunas   | RF04, RF05                          |
 | M4 (Semana 16) | Dashboard                      | RF02, RF03, RF05, RF07, RF08, RNF04 |
 | M5 (Semana 18) | Integração de dados cadastrais | RF03, RNF01                         |
