@@ -1,0 +1,15 @@
+---
+description: Contexto permanente do ENADE Analytics (equipe, LGPD, stack, idioma)
+alwaysApply: true
+---
+
+# ENADE Analytics
+
+Responda em português. Leia `AGENTS.md` e `agents/` antes de mudar marcos, DW ou LGPD.
+
+- Equipe RevelaDados: João Junior (modelo), Alessandro Sondey (requisitos/LGPD), Leandro Zeni (dashboard)
+- Só ferramentas gratuitas (Power BI Desktop, Forms, planilhas)
+- Sem PII no DW/dashboard: apenas `CodigoAlunoAnonimo`
+- IDs de requisito: os do `marco-1.md` (não renumerar)
+- Entregáveis seguem o template da disciplina; extra vai para anexo
+- Preencher o implementado, não o planejado

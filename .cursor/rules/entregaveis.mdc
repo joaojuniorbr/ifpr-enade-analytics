@@ -1,0 +1,18 @@
+---
+description: Como preencher os documentos de marco do Projeto Integrador
+globs: marco-*.md,termo-lgpd.md,entrega-final.md
+alwaysApply: false
+---
+
+# Entregáveis dos marcos
+
+Espelhar as seções numeradas do template oficial da disciplina.
+
+Marco 2 (`marco-2.md`) tem exatamente 8 seções: grão, estrela, diagrama Power BI,
+dicionário, DAX (≥3), LGPD, rastreabilidade, aprovação. Kimball/eixos/ETL só em anexo.
+
+Seção 3 do Marco 2 exige captura da visão Modelo do Power BI — mermaid não substitui.
+
+Rastreabilidade usa os IDs do `marco-1.md`. Checkbox de TCLE aplicado só após coleta real.
+
+Manter tabela de aprovação com Lauriana Paludo.

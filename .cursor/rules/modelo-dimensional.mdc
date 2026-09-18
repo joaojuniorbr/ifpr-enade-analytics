@@ -1,0 +1,19 @@
+---
+description: Esquema estrela Kimball do ENADE Analytics (fato, dimensões, DAX, CSVs)
+globs: modelo-dimensional/**,marco-2.md
+alwaysApply: false
+---
+
+# Modelo dimensional
+
+Grão: 1 resposta × 1 aluno anônimo × 1 questão × 1 aplicação.
+
+Tabelas: `Fato_Respostas`, `Dim_Tempo`, `Dim_Aluno_Anonimo`, `Dim_Questao`, `Dim_Simulado`.
+Não criar `Dim_Eixo` (eixo é atributo de `Dim_Questao`). Não persistir taxa de acerto.
+
+`Acertou` é 0/1 aditivo. Medidas: Total Respostas, Total Acertos, Taxa de Acerto (`DIVIDE`), Alunos Participantes.
+
+16 eixos = Portaria Inep nº 171/2026 Art. 6º (lista no Anexo B de `marco-2.md`).
+Dificuldade: Fácil, Médio, Difícil.
+
+Seed em `modelo-dimensional/powerbi/` é sintético. Relacionamentos 1:* unidirecionais.

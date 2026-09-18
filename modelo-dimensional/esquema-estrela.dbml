@@ -1,0 +1,43 @@
+// ENADE Analytics — esquema estrela (Kimball)
+// Grão: 1 resposta × 1 aluno anônimo × 1 questão × 1 aplicação
+// Importar em https://dbdiagram.io
+
+Table Dim_Tempo {
+  TempoKey integer [pk, note: 'YYYYMMDD']
+  Data date [unique, not null]
+  Ano integer [not null]
+  Mes integer [not null]
+  NomeMes varchar [not null]
+  SemanaSemestre integer [not null]
+}
+
+Table Dim_Aluno_Anonimo {
+  AlunoKey integer [pk]
+  CodigoAlunoAnonimo varchar [unique, not null, note: 'Ex.: Aluno_014 — sem PII']
+  TurmaGrupo varchar [not null]
+}
+
+Table Dim_Questao {
+  QuestaoKey integer [pk]
+  CodigoQuestao varchar [unique, not null]
+  EixoTematico varchar [not null, note: 'Portaria Inep 171/2026 Art. 6º — 16 eixos']
+  NivelDificuldade varchar [not null, note: 'Fácil | Médio | Difícil']
+}
+
+Table Dim_Simulado {
+  SimuladoKey integer [pk]
+  CodigoSimulado varchar [unique, not null]
+  NumeroAplicacao integer [not null]
+  DescricaoSimulado varchar [not null]
+}
+
+Table Fato_Respostas {
+  RespostaKey integer [pk]
+  TempoKey integer [not null, ref: > Dim_Tempo.TempoKey]
+  AlunoKey integer [not null, ref: > Dim_Aluno_Anonimo.AlunoKey]
+  QuestaoKey integer [not null, ref: > Dim_Questao.QuestaoKey]
+  SimuladoKey integer [not null, ref: > Dim_Simulado.SimuladoKey]
+  RespostaDada varchar [not null]
+  Acertou integer [not null, note: 'Contador aditivo 0/1 — taxa = SUM/COUNT']
+  TempoRespostaSegundos float
+}

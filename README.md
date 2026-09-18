@@ -95,7 +95,9 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | [marco-0.md](./marco-0.md) | Termo de abertura — justificativa, objetivos, escopo, riscos e plano de comunicação |
 | [marco-1.md](./marco-1.md) | Matriz de requisitos funcionais e não funcionais |
 | [termo-lgpd.md](./termo-lgpd.md) | Termo de Consentimento Livre e Esclarecido (TCLE) para participantes do simulado |
-| [marco-2.md](./marco-2.md) | Modelo de dados (Data Warehouse) |
+| [marco-2.md](./marco-2.md) | Modelo de dados (Data Warehouse) — seções do template oficial |
+| [modelo-dimensional/](./modelo-dimensional/) | Esquema estrela Kimball — SQL, DBML e CSVs para o Power BI |
+| [AGENTS.md](./AGENTS.md) · [agents/](./agents/) | Contexto para agentes (equipe, marcos, DW, LGPD) |
 | [marco-3.md](./marco-3.md) | Análise de mineração de dados e lacunas por eixo |
 | [marco-4.md](./marco-4.md) | Dashboard interativo com storytelling |
 | [marco-5.md](./marco-5.md) | Integração de dados cadastrais acadêmicos |
@@ -152,15 +154,18 @@ O projeto segue os princípios da **Lei Geral de Proteção de Dados (Lei nº 13
 
 ```
 ifpr-enade-analytics/
-├── README.md              ← este arquivo
-├── marco-0.md             ← Termo de abertura (Semana 2)
-├── marco-1.md             ← Matriz de requisitos (Semana 4)
-├── termo-lgpd.md          ← TCLE / anonimização (Semana 4)
-├── marco-2.md             ← Modelo de dados / DW (Semana 8)
-├── marco-3.md             ← Mineração de dados (Semana 13)
-├── marco-4.md             ← Dashboard (Semana 16)
-├── marco-5.md             ← Integração cadastral (Semana 18)
-└── entrega-final.md       ← Entrega consolidada (Semanas 19–20)
+├── README.md
+├── AGENTS.md
+├── agents/               ← contexto para agentes (marcos, DW, LGPD)
+├── marco-0.md
+├── marco-1.md
+├── termo-lgpd.md
+├── marco-2.md            ← seções 1–8 do template oficial da disciplina
+├── modelo-dimensional/   ← esquema estrela (SQL, DBML, CSVs do Power BI)
+├── marco-3.md
+├── marco-4.md
+├── marco-5.md
+└── entrega-final.md
 ```
 
 ---
