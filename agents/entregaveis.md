@@ -30,6 +30,20 @@ Cabeçalho do template: Entrega, Equipe, Integrantes, Base de referência
 Pendência real da Seção 3: colar screenshot do Power BI em
 `modelo-dimensional/diagrama-powerbi.png`. Mermaid não substitui a captura.
 
+## Marco 3 — template do repositório (8 seções)
+
+1. Objetivo da análise
+2. Dataset utilizado (volume, período, variáveis anonimizadas)
+3. Técnicas aplicadas
+4. Resultados por eixo temático
+5. Distribuição das lacunas (concentradas vs. distribuídas) — RF04
+6. Evolução ao longo do semestre — RF05
+7. Conclusões e recomendações para a coordenação
+8. Aprovação
+
+Números atuais são do **seed sintético**. Deixar isso explícito. Reproduzir no
+Power BI Desktop com `powerbi/tutorial-marco-3.md` (não Python).
+
 ## Outros marcos
 
 Manter tom dos templates: tabelas, checklist, aprovação da orientadora.

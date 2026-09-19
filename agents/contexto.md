@@ -9,8 +9,8 @@
 
 ## Stack
 
-Microsoft Forms → planilha/CSV → Power BI Desktop. Sem banco pago. Seed local em
-`modelo-dimensional/powerbi/`.
+Microsoft Forms → planilha/CSV → **Power BI Desktop**. Sem banco pago. CSVs em
+`modelo-dimensional/powerbi/`. Análise e dashboard **não** usam Python.
 
 ## Marcos
 
@@ -19,7 +19,7 @@ Microsoft Forms → planilha/CSV → Power BI Desktop. Sem banco pago. Seed loca
 | 0 | 2 | Termo de abertura | `marco-0.md` | Concluído |
 | 1 | 4 | Matriz de requisitos + TCLE | `marco-1.md`, `termo-lgpd.md` | Concluído |
 | 2 | 8 | Modelo de dados (DW) | `marco-2.md`, `modelo-dimensional/` | Modelo definido; falta captura Power BI |
-| 3 | 13 | Mineração / lacunas | `marco-3.md` | Pendente |
+| 3 | 13 | Mineração / lacunas | `marco-3.md`, `powerbi/tutorial-marco-3.md` | Fazer no Power BI Desktop |
 | 4 | 16 | Dashboard | `marco-4.md` | Pendente |
 | 5 | 18 | Dados cadastrais (ERP acadêmico, anonimizados) | `marco-5.md` | Pendente |
 | Final | 19–20 | Manual + apresentação | `entrega-final.md` | Pendente |

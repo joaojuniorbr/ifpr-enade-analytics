@@ -12,11 +12,13 @@ description: >-
 2. Ler só o arquivo de `agents/` necessário:
    - marcos/templates → `agents/entregaveis.md`
    - DW/Kimball/DAX → `agents/modelo-dimensional.md`
+   - Power BI / mineração / dashboard → `agents/power-bi.md` e skill `power-bi-especialista`
    - privacidade → `agents/lgpd.md`
    - visão geral → `agents/contexto.md`
 3. Conferir o arquivo de marco correspondente (`marco-0.md` … `marco-5.md`).
 4. Não quebrar a numeração do template oficial.
 5. Não colocar PII no modelo. Não inventar eixos fora da Portaria 171/2026 Art. 6º.
-6. Responder em português.
+6. Não propor Python para análise; usar Power BI Desktop (`powerbi/tutorial-marco-3.md`).
+7. Responder em português.
 
 IDs de requisito oficiais: RF01–RF08 e RNF01–RNF05 em `marco-1.md`.

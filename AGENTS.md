@@ -23,6 +23,7 @@ concentradas vs distribuídas, (4) evolução no semestre.
 ## Regras que não se negociam
 
 - Orçamento zero: Power BI Desktop, Forms, planilhas, IA generativa. Sem ferramenta paga.
+- **Análise, mineração e dashboard: Power BI Desktop.** Não use Python/pandas para taxa, cluster ou gráfico. Tutorial: `powerbi/tutorial-marco-3.md`. Agente: skill `power-bi-especialista`.
 - LGPD: sem nome, CPF, e-mail. Só `CodigoAlunoAnonimo`. Dashboard **agregado**.
 - Simulado não vale nota e não substitui o ENADE oficial.
 - Entregáveis acadêmicos seguem o **template da disciplina**, não uma estrutura inventada.
@@ -35,6 +36,7 @@ concentradas vs distribuídas, (4) evolução no semestre.
 | Contexto completo | [agents/contexto.md](./agents/contexto.md) |
 | Como preencher marcos | [agents/entregaveis.md](./agents/entregaveis.md) |
 | DW / Kimball / eixos | [agents/modelo-dimensional.md](./agents/modelo-dimensional.md) |
+| Power BI (análise e dashboard) | [agents/power-bi.md](./agents/power-bi.md) · [powerbi/tutorial-marco-3.md](./powerbi/tutorial-marco-3.md) |
 | LGPD / TCLE | [agents/lgpd.md](./agents/lgpd.md) |
 | Marco 0–5 e final | `marco-0.md` … `marco-5.md`, `entrega-final.md` |
 | DW implementado | `modelo-dimensional/` |

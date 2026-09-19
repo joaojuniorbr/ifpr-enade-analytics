@@ -1,0 +1,15 @@
+---
+description: Análise e dashboard no Power BI Desktop, nunca Python
+globs: powerbi/**,marco-3.md,marco-4.md,modelo-dimensional/powerbi/**
+alwaysApply: false
+---
+
+# Power BI primeiro
+
+Mineração, gráficos e dashboard deste projeto são no Power BI Desktop (pt-BR).
+
+Não proponha Python, pandas ou Jupyter para taxa de acerto, cluster ou visual.
+Aponte `powerbi/tutorial-marco-3.md`. DAX e cliques, não scripts.
+
+CSVs em `modelo-dimensional/powerbi/` só alimentam o Desktop. `gerar_seed.py`
+não é ferramenta de análise.

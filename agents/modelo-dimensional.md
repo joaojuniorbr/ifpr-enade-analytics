@@ -15,8 +15,9 @@ Estrela (não floco de neve): fato no centro, eixo e dificuldade **atributos** d
 
 Relacionamentos 1:\*, filtro unidirecional dimensão → fato.
 
-**Não armazenar taxa de acerto.** Medidas: `Total Respostas`, `Total Acertos`,
-`Taxa de Acerto` (`DIVIDE`), `Alunos Participantes` (`DISTINCTCOUNT`).
+**Não armazenar taxa de acerto.** Medidas no Power BI Desktop: `Total Respostas`,
+`Total Acertos`, `Taxa de Acerto` (`DIVIDE`), `Alunos Participantes`
+(`DISTINCTCOUNT`). Tutorial de mineração: `powerbi/tutorial-marco-3.md`.
 
 Arquivos: `modelo-dimensional/esquema-estrela.sql`, `.dbml`,
 `powerbi/*.csv`, `gerar_seed.py`. Seed é **sintético**, não coleta real.

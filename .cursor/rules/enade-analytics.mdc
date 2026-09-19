@@ -9,6 +9,7 @@ Responda em português. Leia `AGENTS.md` e `agents/` antes de mudar marcos, DW o
 
 - Equipe RevelaDados: João Junior (modelo), Alessandro Sondey (requisitos/LGPD), Leandro Zeni (dashboard)
 - Só ferramentas gratuitas (Power BI Desktop, Forms, planilhas)
+- Análise e mineração no Power BI Desktop, nunca Python para gráfico/lacuna
 - Sem PII no DW/dashboard: apenas `CodigoAlunoAnonimo`
 - IDs de requisito: os do `marco-1.md` (não renumerar)
 - Entregáveis seguem o template da disciplina; extra vai para anexo

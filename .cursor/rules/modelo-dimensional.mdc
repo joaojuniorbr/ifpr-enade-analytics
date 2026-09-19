@@ -17,3 +17,4 @@ Não criar `Dim_Eixo` (eixo é atributo de `Dim_Questao`). Não persistir taxa d
 Dificuldade: Fácil, Médio, Difícil.
 
 Seed em `modelo-dimensional/powerbi/` é sintético. Relacionamentos 1:* unidirecionais.
+Análise no Power BI Desktop (`powerbi/tutorial-marco-3.md`), não em Python.

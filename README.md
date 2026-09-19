@@ -81,7 +81,7 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | **Marco 0** | 2 | Termo de abertura do projeto (escopo preliminar) | [marco-0.md](./marco-0.md) | Concluído |
 | **Marco 1** | 4 | Matriz de requisitos + termo de consentimento (LGPD) | [marco-1.md](./marco-1.md) · [termo-lgpd.md](./termo-lgpd.md) | Concluído |
 | **Marco 2** | 8 | Modelo de dados (Data Warehouse) do banco de questões/respostas | [marco-2.md](./marco-2.md) | Modelo dimensional definido |
-| **Marco 3** | 13 | Relatório de clusters / lacunas de conhecimento por eixo | [marco-3.md](./marco-3.md) | Pendente |
+| **Marco 3** | 13 | Relatório de clusters / lacunas de conhecimento por eixo | [marco-3.md](./marco-3.md) | Análise do seed (piloto sintético) |
 | **Marco 4** | 16 | Dashboard com storytelling de dados | [marco-4.md](./marco-4.md) | Pendente |
 | **Marco 5** | 18 | Integração dos dados cadastrais (módulo tipo ERP acadêmico) | [marco-5.md](./marco-5.md) | Pendente |
 | **Entrega final** | 19–20 | Aplicação completa + manual técnico + apresentação à coordenação | [entrega-final.md](./entrega-final.md) | Pendente |
@@ -99,6 +99,7 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | [modelo-dimensional/](./modelo-dimensional/) | Esquema estrela Kimball — SQL, DBML e CSVs para o Power BI |
 | [AGENTS.md](./AGENTS.md) · [agents/](./agents/) | Contexto para agentes (equipe, marcos, DW, LGPD) |
 | [marco-3.md](./marco-3.md) | Análise de mineração de dados e lacunas por eixo |
+| [powerbi/tutorial-marco-3.md](./powerbi/tutorial-marco-3.md) | Como montar a mineração no Power BI Desktop |
 | [marco-4.md](./marco-4.md) | Dashboard interativo com storytelling |
 | [marco-5.md](./marco-5.md) | Integração de dados cadastrais acadêmicos |
 | [entrega-final.md](./entrega-final.md) | Manual técnico, apresentação e entrega consolidada |
@@ -113,7 +114,7 @@ Restrição de **orçamento zero** — apenas ferramentas gratuitas:
 | --- | --- |
 | Microsoft Forms | Coleta de respostas do simulado |
 | Planilhas (Excel/Google Sheets) | Banco de questões e dados intermediários |
-| Power BI Desktop | Dashboard interativo |
+| Power BI Desktop | Modelo estrela, mineração (Marco 3) e dashboard (Marco 4) |
 | IA generativa | Geração de questões adicionais e resumos executivos |
 | Notion | Organização e acompanhamento do projeto |
 
@@ -163,6 +164,7 @@ ifpr-enade-analytics/
 ├── marco-2.md            ← seções 1–8 do template oficial da disciplina
 ├── modelo-dimensional/   ← esquema estrela (SQL, DBML, CSVs do Power BI)
 ├── marco-3.md
+├── powerbi/              ← tutorial Power BI Desktop (Marco 3)
 ├── marco-4.md
 ├── marco-5.md
 └── entrega-final.md
