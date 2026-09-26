@@ -1,47 +1,69 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { supabaseConfigurado } from "@/lib/supabase/env";
-import { atualizarSessao, copiarCookies } from "@/lib/supabase/middleware";
+import { isAuth0Configured, getAuth0 } from "@/lib/auth0";
 
-function protegido(pathname: string): boolean {
-  return (
-    pathname === "/admin" ||
-    pathname.startsWith("/admin/") ||
-    pathname === "/prova" ||
-    pathname.startsWith("/prova/")
-  );
+function isProtected(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+function redirectToLogin(request: NextRequest, source: NextResponse, reason?: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = "";
+  if (reason) url.searchParams.set("reason", reason);
+  else url.searchParams.set("next", request.nextUrl.pathname);
+
+  const destination = NextResponse.redirect(url);
+  source.cookies.getAll().forEach((cookie) => {
+    destination.cookies.set(cookie);
+  });
+  return destination;
+}
+
+function nextWithPathname(request: NextRequest) {
+  const headers = new Headers(request.headers);
+  headers.set("x-pathname", request.nextUrl.pathname);
+  return NextResponse.next({ request: { headers } });
+}
+
+function copyCookies(source: NextResponse, destination: NextResponse) {
+  for (const cookie of source.headers.getSetCookie()) {
+    destination.headers.append("set-cookie", cookie);
+  }
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (!supabaseConfigurado()) {
-    if (protegido(pathname)) {
+  if (!isAuth0Configured()) {
+    if (isProtected(pathname)) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = "";
-      url.searchParams.set("motivo", "config");
+      url.searchParams.set("reason", "config");
       return NextResponse.redirect(url);
     }
-    return NextResponse.next();
+    return nextWithPathname(request);
   }
 
-  const { resposta, autenticado } = await atualizarSessao(request);
+  const auth0 = getAuth0();
+  const authResponse = await auth0.middleware(request);
 
-  if (protegido(pathname) && !autenticado) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = "";
-    url.searchParams.set("next", pathname);
-    const redirecionamento = NextResponse.redirect(url);
-    copiarCookies(resposta, redirecionamento);
-    return redirecionamento;
+  if (pathname.startsWith("/auth")) {
+    return authResponse;
   }
 
-  return resposta;
+  if (isProtected(pathname)) {
+    const session = await auth0.getSession(request);
+    if (!session) return redirectToLogin(request, authResponse);
+  }
+
+  const passthrough = nextWithPathname(request);
+  copyCookies(authResponse, passthrough);
+  return passthrough;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

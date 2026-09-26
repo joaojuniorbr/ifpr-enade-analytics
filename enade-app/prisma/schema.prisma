@@ -7,133 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  ALUNO
+model Dim_Aluno_Anonimo {
+  AlunoKey           Int              @id
+  CodigoAlunoAnonimo String           @unique(map: "CodigoAlunoAnonimo") @db.VarChar(32)
+  TurmaGrupo         String           @db.VarChar(64)
+  Fato_Respostas     Fato_Respostas[]
 }
 
-enum NivelDificuldade {
-  FACIL
-  MEDIO
-  DIFICIL
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Dim_Questao {
+  QuestaoKey       Int              @id
+  CodigoQuestao    String           @unique(map: "CodigoQuestao") @db.VarChar(32)
+  EixoTematico     String           @db.VarChar(128)
+  NivelDificuldade String           @db.VarChar(16)
+  Fato_Respostas   Fato_Respostas[]
+
+  @@index([EixoTematico], map: "IX_Questao_Eixo")
 }
 
-model Usuario {
-  id         String      @id @db.VarChar(36)
-  email      String      @unique @db.VarChar(255)
-  nome       String      @db.VarChar(120)
-  role       Role        @default(ALUNO)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  tentativas Tentativa[]
-
-  @@index([role])
+model Dim_Simulado {
+  SimuladoKey       Int              @id
+  CodigoSimulado    String           @unique(map: "CodigoSimulado") @db.VarChar(64)
+  NumeroAplicacao   Int
+  DescricaoSimulado String           @db.VarChar(255)
+  Fato_Respostas    Fato_Respostas[]
 }
 
-model Pergunta {
-  id           String            @id @default(cuid())
-  enunciado    String            @db.Text
-  eixo         String?           @db.VarChar(80)
-  tema         String?           @db.VarChar(120)
-  nivel        NivelDificuldade?
-  ativa        Boolean           @default(true)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  alternativas Alternativa[]
-  provas       ProvaPergunta[]
-  respostas    Resposta[]
-  ordens       OrdemPergunta[]
-
-  @@index([ativa])
-  @@index([eixo])
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Dim_Tempo {
+  TempoKey       Int              @id
+  Data           DateTime         @unique(map: "Data") @db.Date
+  Ano            Int
+  Mes            Int
+  NomeMes        String           @db.VarChar(20)
+  SemanaSemestre Int
+  Fato_Respostas Fato_Respostas[]
 }
 
-model Alternativa {
-  id         String     @id @default(cuid())
-  perguntaId String
-  texto      String     @db.Text
-  correta    Boolean    @default(false)
-  ordem      Int
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  pergunta   Pergunta   @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
-  respostas  Resposta[]
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Fato_Respostas {
+  RespostaKey           Int               @id
+  TempoKey              Int
+  AlunoKey              Int
+  QuestaoKey            Int
+  SimuladoKey           Int
+  RespostaDada          String            @db.VarChar(8)
+  Acertou               Int
+  TempoRespostaSegundos Float?
+  Dim_Tempo             Dim_Tempo         @relation(fields: [TempoKey], references: [TempoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_1")
+  Dim_Aluno_Anonimo     Dim_Aluno_Anonimo @relation(fields: [AlunoKey], references: [AlunoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_2")
+  Dim_Questao           Dim_Questao       @relation(fields: [QuestaoKey], references: [QuestaoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_3")
+  Dim_Simulado          Dim_Simulado      @relation(fields: [SimuladoKey], references: [SimuladoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_4")
 
-  @@index([perguntaId])
-}
-
-model Prova {
-  id         String          @id @default(cuid())
-  titulo     String          @db.VarChar(160)
-  data       DateTime        @db.Date
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  perguntas  ProvaPergunta[]
-  tentativas Tentativa[]
-
-  @@index([data])
-}
-
-model ProvaPergunta {
-  provaId    String
-  perguntaId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  prova      Prova    @relation(fields: [provaId], references: [id], onDelete: Cascade)
-  pergunta   Pergunta @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
-
-  @@id([provaId, perguntaId])
-  @@index([perguntaId])
-}
-
-model Tentativa {
-  id          String          @id @default(cuid())
-  usuarioId   String          @db.VarChar(36)
-  provaId     String
-  iniciadaEm  DateTime        @default(now())
-  concluidaEm DateTime?
-  nota        Decimal?        @db.Decimal(5, 2)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  usuario     Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
-  prova       Prova           @relation(fields: [provaId], references: [id], onDelete: Restrict)
-  ordem       OrdemPergunta[]
-  respostas   Resposta[]
-
-  @@unique([usuarioId, provaId])
-  @@index([usuarioId])
-  @@index([provaId])
-  @@index([concluidaEm])
-}
-
-model OrdemPergunta {
-  tentativaId String
-  perguntaId  String
-  posicao     Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  tentativa   Tentativa @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
-  pergunta    Pergunta  @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
-
-  @@id([tentativaId, perguntaId])
-  @@unique([tentativaId, posicao])
-  @@index([perguntaId])
-}
-
-model Resposta {
-  id            String      @id @default(cuid())
-  tentativaId   String
-  perguntaId    String
-  alternativaId String
-  acertou       Boolean
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  tentativa     Tentativa   @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
-  pergunta      Pergunta    @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
-  alternativa   Alternativa @relation(fields: [alternativaId], references: [id], onDelete: Restrict)
-
-  @@unique([tentativaId, perguntaId])
-  @@index([perguntaId])
-  @@index([alternativaId])
-  @@index([acertou])
+  @@unique([AlunoKey, QuestaoKey, SimuladoKey], map: "AlunoKey")
+  @@index([AlunoKey], map: "IX_Fato_Aluno")
+  @@index([QuestaoKey], map: "IX_Fato_Questao")
+  @@index([SimuladoKey], map: "IX_Fato_Simulado")
+  @@index([TempoKey], map: "IX_Fato_Tempo")
 }

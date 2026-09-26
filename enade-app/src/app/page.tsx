@@ -1,59 +1,44 @@
 import Link from "next/link";
-import { obterUsuarioOpcional } from "@/lib/auth";
-import { botaoPrimario, botaoSecundario, cartao } from "@/lib/estilos";
+import { DashboardCharts } from "@/components/dashboard-charts";
+import { toChartPoints } from "@/lib/format";
+import { getOptionalUser } from "@/lib/auth";
+import { loadAdminDashboard } from "@/lib/dashboard";
 
 export default async function Home() {
-  const usuario = await obterUsuarioOpcional();
+  const [user, dashboard] = await Promise.all([getOptionalUser(), loadAdminDashboard()]);
+  const firstName = user?.name.split(" ")[0];
 
   return (
-    <div className="space-y-6">
-      <section className={cartao}>
-        <p className="text-sm font-medium text-blue-700">Preparação ENADE 2026</p>
-        <h1 className="mt-2 text-3xl font-semibold text-slate-900">Aplicação de simulados</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-          A coordenação cadastra as perguntas e a prova de um dia. Nesse dia, cada aluno recebe
-          as questões em ordem aleatória. Atualizar a página não muda a ordem. Uma prova concluída
-          não pode ser refeita.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {usuario ? (
-            <>
-              <Link href="/prova" className={botaoPrimario}>
-                Ir para as provas
+    <div className="space-y-4">
+      <section className="grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#6d4aff] p-6 text-white md:grid-cols-[1.3fr_0.7fr] md:p-8">
+        <div>
+          <p className="text-sm text-white/75">{firstName ? `Bem-vindo de volta, ${firstName}` : "Preparação ENADE 2026"}</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Modelo estrela do simulado</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/80">
+            O banco guarda questão, aluno anônimo, tempo e simulado. A coordenação acompanha os acertos e
+            mantém esses cadastros. O dashboard da disciplina continua no Power BI Desktop.
+          </p>
+          <div className="mt-5">
+            {user?.role === "ADMIN" ? (
+              <Link href="/admin" className="inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#6d4aff]">
+                Abrir acompanhamento
               </Link>
-              {usuario.role === "ADMIN" ? (
-                <Link href="/admin" className={botaoSecundario}>
-                  Painel admin
-                </Link>
-              ) : null}
-            </>
-          ) : (
-            <Link href="/login" className={botaoPrimario}>
-              Entrar
-            </Link>
-          )}
+            ) : user ? (
+              <p className="text-sm text-white/80">Sua conta entrou, mas o cadastro do modelo é só de administrador.</p>
+            ) : (
+              <Link href="/login" className="inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#6d4aff]">
+                Entrar
+              </Link>
+            )}
+          </div>
         </div>
+        <img src="/undraw-dados.svg" alt="" className="mx-auto w-full max-w-xs rounded-3xl bg-white/95 p-4" />
       </section>
-      <div className="grid gap-4 md:grid-cols-3">
-        <article className={cartao}>
-          <h2 className="text-sm font-semibold text-slate-900">Prova do dia</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Fora da data, a prova aparece como ainda não liberada ou encerrada.
-          </p>
-        </article>
-        <article className={cartao}>
-          <h2 className="text-sm font-semibold text-slate-900">Uma tentativa</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Dá para sair e voltar no mesmo dia. A tentativa concluída fica no histórico.
-          </p>
-        </article>
-        <article className={cartao}>
-          <h2 className="text-sm font-semibold text-slate-900">Acompanhamento</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            O admin vê tentativas, média e conclusão a partir dos dados gravados no MySQL.
-          </p>
-        </article>
-      </div>
+      <DashboardCharts
+        axes={toChartPoints(dashboard.byAxis)}
+        classes={toChartPoints(dashboard.byClass)}
+        exams={toChartPoints(dashboard.byExam)}
+      />
     </div>
   );
 }

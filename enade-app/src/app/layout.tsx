@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Cabecalho } from "@/components/cabecalho";
-import { obterUsuarioOpcional } from "@/lib/auth";
+import { headers } from "next/headers";
+import { Shell } from "@/components/shell";
+import { getOptionalUser } from "@/lib/auth";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -18,16 +19,23 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const usuario = await obterUsuarioOpcional();
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const user = pathname === "/login" ? null : await getOptionalUser();
+
+  if (pathname === "/login") {
+    return (
+      <html lang="pt-BR">
+        <body className={`${geist.className} bg-[#ece8fb] text-slate-900 antialiased`}>{children}</body>
+      </html>
+    );
+  }
 
   return (
     <html lang="pt-BR">
-      <body className={`${geist.className} bg-slate-50 text-slate-900 antialiased`}>
-        <Cabecalho usuario={usuario ? { nome: usuario.nome, role: usuario.role } : null} />
-        <main className="mx-auto min-h-screen max-w-6xl px-4 py-8">{children}</main>
-        <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-          Simulado de preparação. Não vale nota e não substitui o ENADE oficial.
-        </footer>
+      <body className={`${geist.className} antialiased`}>
+        <Shell user={user ? { name: user.name, role: user.role } : null} pathname={pathname}>
+          {children}
+        </Shell>
       </body>
     </html>
   );

@@ -1,81 +1,68 @@
-import { Prisma, type Usuario } from "@prisma/client";
-import { cache } from "react";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { emailsAdmin, supabaseConfigurado } from "@/lib/supabase/env";
-import { criarClienteServidor } from "@/lib/supabase/server";
+import { cache } from 'react';
+import { redirect } from 'next/navigation';
+import { isAuth0Configured, adminEmails, getAuth0 } from '@/lib/auth0';
 
-type UsuarioAuth = {
-  id: string;
-  email?: string | null;
-  user_metadata?: Record<string, unknown>;
+export type SessionUser = {
+	id: string;
+	email: string;
+	name: string;
+	role: 'ADMIN' | 'ALUNO';
 };
 
-function nomeExibido(meta: Record<string, unknown>, email: string): string {
-  for (const chave of ["full_name", "name", "user_name", "preferred_username"]) {
-    const valor = meta[chave];
-    if (typeof valor === "string" && valor.trim()) {
-      return valor.trim().slice(0, 120);
-    }
-  }
-  const local = email.split("@")[0]?.trim();
-  return (local || "Aluno").slice(0, 120);
+type Identity = {
+	sub: string;
+	email?: string | null;
+	email_verified?: boolean;
+	name?: string | null;
+	given_name?: string | null;
+	nickname?: string | null;
+};
+
+function displayName(user: Identity, email: string): string {
+	for (const value of [user.name, user.given_name, user.nickname]) {
+		if (typeof value === 'string' && value.trim()) {
+			return value.trim().slice(0, 120);
+		}
+	}
+	const local = email.split('@')[0]?.trim();
+	return (local || 'Aluno').slice(0, 120);
 }
 
-export async function sincronizarUsuario(user: UsuarioAuth): Promise<Usuario | null> {
-  const email = user.email?.trim().toLowerCase();
-  if (!email) return null;
+function userFromSession(user: Identity): SessionUser | null {
+	const email = user.email?.trim().toLowerCase();
+	const id = user.sub?.trim();
+	if (!email || !id || id.length > 128 || user.email_verified === false)
+		return null;
 
-  const nome = nomeExibido(user.user_metadata ?? {}, email);
-  const promover = emailsAdmin().includes(email);
-
-  try {
-    const existente = await prisma.usuario.findUnique({ where: { id: user.id } });
-    if (!existente) {
-      return await prisma.usuario.create({
-        data: {
-          id: user.id,
-          email,
-          nome,
-          role: promover ? "ADMIN" : "ALUNO",
-        },
-      });
-    }
-
-    return await prisma.usuario.update({
-      where: { id: user.id },
-      data: {
-        email,
-        nome,
-        ...(promover ? { role: "ADMIN" as const } : {}),
-      },
-    });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      throw new Error("EMAIL_EM_USO");
-    }
-    throw error;
-  }
+	return {
+		id,
+		email,
+		name: displayName(user, email),
+		role: adminEmails().includes(email) ? 'ADMIN' : 'ALUNO',
+	};
 }
 
-export const obterUsuarioOpcional = cache(async (): Promise<Usuario | null> => {
-  if (!supabaseConfigurado()) return null;
-
-  const supabase = await criarClienteServidor();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-
-  return sincronizarUsuario(data.user);
+export const getAuthSession = cache(async () => {
+	if (!isAuth0Configured()) return null;
+	return getAuth0().getSession();
 });
 
-export async function exigirUsuario(): Promise<Usuario> {
-  const usuario = await obterUsuarioOpcional();
-  if (!usuario) redirect("/login");
-  return usuario;
+export const getOptionalUser = cache(
+	async (): Promise<SessionUser | null> => {
+		const session = await getAuthSession();
+		if (!session?.user) return null;
+		return userFromSession(session.user);
+	}
+);
+
+export async function requireUser(): Promise<SessionUser> {
+	const user = await getOptionalUser();
+	if (!user) redirect('/login');
+	return user;
 }
 
-export async function exigirAdmin(): Promise<Usuario> {
-  const usuario = await exigirUsuario();
-  if (usuario.role !== "ADMIN") redirect("/prova");
-  return usuario;
+export async function requireAdmin(): Promise<SessionUser> {
+	const user = await requireUser();
+	if (user.role !== 'ADMIN') redirect('/');
+	return user;
 }

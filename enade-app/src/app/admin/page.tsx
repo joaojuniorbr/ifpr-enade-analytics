@@ -1,136 +1,140 @@
 import Link from "next/link";
-import { Aviso } from "@/components/aviso";
-import { cartao } from "@/lib/estilos";
-import { formatarData } from "@/lib/datas";
-import { formatarNota, formatarTaxa, resumir } from "@/lib/formatar";
-import { painelAdmin } from "@/lib/painel";
+import { DashboardCharts } from "@/components/dashboard-charts";
+import { cardClass } from "@/lib/styles";
+import { formatRate, toChartPoints } from "@/lib/format";
+import { loadAdminDashboard, type GroupSummary, type QuestionSummary } from "@/lib/dashboard";
 
 export const metadata = { title: "Acompanhamento" };
 
-export default async function Painel() {
-  const painel = await painelAdmin();
+export default async function DashboardPage() {
+  const dashboard = await loadAdminDashboard();
+  const worstAxis = dashboard.byAxis[0];
+  const classGap = gapBetweenClasses(dashboard.byClass);
+  const worstQuestion = dashboard.byQuestion[0];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Acompanhamento</h1>
-        <p className="mt-1 text-sm text-slate-600">Números calculados nas tentativas gravadas no MySQL.</p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <article className={cartao}>
-          <p className="text-sm text-slate-500">Tentativas</p>
-          <p className="mt-2 text-3xl font-semibold">{painel.totalTentativas}</p>
-        </article>
-        <article className={cartao}>
-          <p className="text-sm text-slate-500">Conclusão</p>
-          <p className="mt-2 text-3xl font-semibold">
-            {formatarTaxa(painel.concluidas, painel.totalTentativas)}
+    <div className="space-y-4">
+      <section className="grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#6d4aff] p-6 text-white md:grid-cols-[1.3fr_0.7fr] md:p-8">
+        <div>
+          <p className="text-sm text-white/75">Bem-vindo de volta</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Acompanhamento do simulado</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/80">
+            Totais de Fato_Respostas. A taxa é acertos divididos pelas respostas. O dashboard da
+            disciplina continua no Power BI Desktop.
           </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {painel.concluidas} de {painel.totalTentativas} concluídas
-          </p>
-        </article>
-        <article className={cartao}>
-          <p className="text-sm text-slate-500">Média das notas</p>
-          <p className="mt-2 text-3xl font-semibold">{formatarNota(painel.media)}</p>
-        </article>
-      </div>
-
-      <section className={cartao}>
-        <h2 className="text-lg font-semibold text-slate-900">Por prova</h2>
-        {painel.porProva.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">Nenhuma prova cadastrada.</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs text-slate-500">
-                <tr>
-                  <th className="py-2 pr-4 font-medium">Prova</th>
-                  <th className="py-2 pr-4 font-medium">Data</th>
-                  <th className="py-2 pr-4 font-medium">Tentativas</th>
-                  <th className="py-2 pr-4 font-medium">Conclusão</th>
-                  <th className="py-2 font-medium">Média</th>
-                </tr>
-              </thead>
-              <tbody>
-                {painel.porProva.map((prova) => (
-                  <tr key={prova.id} className="border-t border-slate-200">
-                    <td className="py-3 pr-4">
-                      <Link href={`/admin/provas/${prova.id}`} className="font-medium text-blue-700 hover:underline">
-                        {prova.titulo}
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-4">{formatarData(prova.data)}</td>
-                    <td className="py-3 pr-4">{prova.tentativas}</td>
-                    <td className="py-3 pr-4">{formatarTaxa(prova.concluidas, prova.tentativas)}</td>
-                    <td className="py-3">{formatarNota(prova.media)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        </div>
+        <img
+          src="/undraw-dados.svg"
+          alt=""
+          className="mx-auto w-full max-w-xs rounded-3xl bg-white/95 p-4"
+        />
       </section>
 
-      <section className={cartao}>
-        <h2 className="text-lg font-semibold text-slate-900">Por eixo</h2>
-        {painel.porEixo.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">Ainda não há resposta em prova concluída.</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        <article className={cardClass}>
+          <p className="text-sm text-slate-500">Respostas</p>
+          <p className="mt-2 text-3xl font-semibold">{dashboard.total}</p>
+        </article>
+        <article className={cardClass}>
+          <p className="text-sm text-slate-500">Acertos</p>
+          <p className="mt-2 text-3xl font-semibold">{dashboard.hits}</p>
+        </article>
+        <article className={cardClass}>
+          <p className="text-sm text-slate-500">Taxa geral</p>
+          <p className="mt-2 text-3xl font-semibold">{formatRate(dashboard.hits, dashboard.total)}</p>
+        </article>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Insight
+          label="Pior eixo"
+          value={worstAxis?.name ?? "—"}
+          detail={worstAxis ? `${worstAxis.hits}/${worstAxis.total} · ${formatRate(worstAxis.hits, worstAxis.total)}` : "Sem respostas."}
+        />
+        <Insight
+          label="Diferença entre turmas"
+          value={classGap ? `${classGap.points} p.p.` : "—"}
+          detail={
+            classGap
+              ? `${classGap.higher} acima de ${classGap.lower}`
+              : "É preciso pelo menos duas turmas."
+          }
+        />
+        <Insight
+          label="Questão com menor taxa"
+          value={worstQuestion?.code ?? "—"}
+          detail={
+            worstQuestion
+              ? `${worstQuestion.axis} · ${formatRate(worstQuestion.hits, worstQuestion.total)}`
+              : "Sem respostas."
+          }
+        />
+      </div>
+
+      <DashboardCharts
+        axes={toChartPoints(dashboard.byAxis)}
+        classes={toChartPoints(dashboard.byClass)}
+        exams={toChartPoints(dashboard.byExam)}
+      />
+
+      <section className={cardClass}>
+        <h2 className="text-lg font-semibold text-slate-900">Por questão</h2>
+        <p className="mt-1 text-sm text-slate-500">Da menor taxa para a maior.</p>
+        {dashboard.byQuestion.length === 0 ? (
+          <p className="mt-3 text-sm text-slate-600">Nenhuma questão nas respostas.</p>
         ) : (
-          <ul className="mt-4 space-y-2 text-sm">
-            {painel.porEixo.map((eixo) => (
-              <li key={eixo.eixo} className="flex items-center justify-between gap-4 border-t border-slate-200 py-2">
-                <span>{eixo.eixo}</span>
-                <span className="text-slate-600">
-                  {eixo.acertos}/{eixo.total} · {formatarTaxa(eixo.acertos, eixo.total)}
-                </span>
-              </li>
+          <ul className="mt-4 space-y-3">
+            {dashboard.byQuestion.map((question) => (
+              <QuestionBar key={question.code} question={question} />
             ))}
           </ul>
         )}
-      </section>
-
-      <section className={cartao}>
-        <h2 className="text-lg font-semibold text-slate-900">Por pergunta</h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Acertos sobre as vezes em que a questão entrou numa tentativa concluída. Questão em branco conta como erro.
+        <p className="mt-4 text-sm">
+          <Link href="/admin/questoes" className="font-medium text-[#6d4aff] hover:underline">
+            Cadastrar questões
+          </Link>
         </p>
-        {painel.porPergunta.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">Ainda não há resposta em prova concluída.</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs text-slate-500">
-                <tr>
-                  <th className="py-2 pr-4 font-medium">Pergunta</th>
-                  <th className="py-2 pr-4 font-medium">Eixo</th>
-                  <th className="py-2 font-medium">Acertos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {painel.porPergunta.map((pergunta) => (
-                  <tr key={pergunta.id} className="border-t border-slate-200">
-                    <td className="py-3 pr-4">
-                      <Link href={`/admin/perguntas/${pergunta.id}`} className="text-blue-700 hover:underline">
-                        {resumir(pergunta.enunciado)}
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-4">{pergunta.eixo ?? "—"}</td>
-                    <td className="py-3">
-                      {pergunta.acertos}/{pergunta.total} · {formatarTaxa(pergunta.acertos, pergunta.total)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </section>
-
-      {painel.totalTentativas === 0 ? (
-        <Aviso texto="Quando alguém iniciar uma prova, os totais acima deixam de ser zero." />
-      ) : null}
     </div>
   );
+}
+
+function Insight({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return (
+    <article className={cardClass}>
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-2 text-lg font-semibold leading-snug break-words text-slate-900">{value}</p>
+      <p className="mt-1 text-sm text-slate-600">{detail}</p>
+    </article>
+  );
+}
+
+function QuestionBar({ question }: { question: QuestionSummary }) {
+  const width = question.total <= 0 ? 0 : Math.round((question.hits / question.total) * 1000) / 10;
+  return (
+    <li>
+      <div className="flex items-baseline justify-between gap-3 text-sm">
+        <span className="font-medium text-slate-900">{question.code}</span>
+        <span className="text-slate-600">
+          {question.hits}/{question.total} · {formatRate(question.hits, question.total)}
+        </span>
+      </div>
+      <p className="mt-0.5 text-xs text-slate-500">{question.axis}</p>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efeaff]">
+        <div className="h-full rounded-full bg-[#6d4aff]" style={{ width: `${width}%` }} />
+      </div>
+    </li>
+  );
+}
+
+function gapBetweenClasses(classes: GroupSummary[]) {
+  const ranked = classes
+    .filter((item) => item.total > 0)
+    .map((item) => ({ ...item, rate: item.hits / item.total }))
+    .sort((a, b) => b.rate - a.rate);
+  if (ranked.length < 2) return null;
+  const higher = ranked[0];
+  const lower = ranked[ranked.length - 1];
+  const points = Math.round((higher.rate - lower.rate) * 1000) / 10;
+  return { higher: higher.name, lower: lower.name, points: points.toLocaleString("pt-BR") };
 }
