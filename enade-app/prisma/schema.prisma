@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ALUNO
+}
+
+enum NivelDificuldade {
+  FACIL
+  MEDIO
+  DIFICIL
+}
+
+model Usuario {
+  id         String      @id @db.VarChar(36)
+  email      String      @unique @db.VarChar(255)
+  nome       String      @db.VarChar(120)
+  role       Role        @default(ALUNO)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  tentativas Tentativa[]
+
+  @@index([role])
+}
+
+model Pergunta {
+  id           String            @id @default(cuid())
+  enunciado    String            @db.Text
+  eixo         String?           @db.VarChar(80)
+  tema         String?           @db.VarChar(120)
+  nivel        NivelDificuldade?
+  ativa        Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  alternativas Alternativa[]
+  provas       ProvaPergunta[]
+  respostas    Resposta[]
+  ordens       OrdemPergunta[]
+
+  @@index([ativa])
+  @@index([eixo])
+}
+
+model Alternativa {
+  id         String     @id @default(cuid())
+  perguntaId String
+  texto      String     @db.Text
+  correta    Boolean    @default(false)
+  ordem      Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  pergunta   Pergunta   @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
+  respostas  Resposta[]
+
+  @@index([perguntaId])
+}
+
+model Prova {
+  id         String          @id @default(cuid())
+  titulo     String          @db.VarChar(160)
+  data       DateTime        @db.Date
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  perguntas  ProvaPergunta[]
+  tentativas Tentativa[]
+
+  @@index([data])
+}
+
+model ProvaPergunta {
+  provaId    String
+  perguntaId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  prova      Prova    @relation(fields: [provaId], references: [id], onDelete: Cascade)
+  pergunta   Pergunta @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
+
+  @@id([provaId, perguntaId])
+  @@index([perguntaId])
+}
+
+model Tentativa {
+  id          String          @id @default(cuid())
+  usuarioId   String          @db.VarChar(36)
+  provaId     String
+  iniciadaEm  DateTime        @default(now())
+  concluidaEm DateTime?
+  nota        Decimal?        @db.Decimal(5, 2)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  usuario     Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  prova       Prova           @relation(fields: [provaId], references: [id], onDelete: Restrict)
+  ordem       OrdemPergunta[]
+  respostas   Resposta[]
+
+  @@unique([usuarioId, provaId])
+  @@index([usuarioId])
+  @@index([provaId])
+  @@index([concluidaEm])
+}
+
+model OrdemPergunta {
+  tentativaId String
+  perguntaId  String
+  posicao     Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tentativa   Tentativa @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
+  pergunta    Pergunta  @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
+
+  @@id([tentativaId, perguntaId])
+  @@unique([tentativaId, posicao])
+  @@index([perguntaId])
+}
+
+model Resposta {
+  id            String      @id @default(cuid())
+  tentativaId   String
+  perguntaId    String
+  alternativaId String
+  acertou       Boolean
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  tentativa     Tentativa   @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
+  pergunta      Pergunta    @relation(fields: [perguntaId], references: [id], onDelete: Restrict)
+  alternativa   Alternativa @relation(fields: [alternativaId], references: [id], onDelete: Restrict)
+
+  @@unique([tentativaId, perguntaId])
+  @@index([perguntaId])
+  @@index([alternativaId])
+  @@index([acertou])
+}
