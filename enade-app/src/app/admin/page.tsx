@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { DashboardCharts } from "@/components/dashboard-charts";
 import { cardClass } from "@/lib/styles";
@@ -23,10 +24,13 @@ export default async function DashboardPage() {
             disciplina continua no Power BI Desktop.
           </p>
         </div>
-        <img
+        <Image
           src="/undraw-dados.svg"
           alt=""
-          className="mx-auto w-full max-w-xs rounded-3xl bg-white/95 p-4"
+          width={640}
+          height={480}
+          unoptimized
+          className="mx-auto h-auto w-full max-w-xs rounded-3xl bg-white/95 p-4"
         />
       </section>
 

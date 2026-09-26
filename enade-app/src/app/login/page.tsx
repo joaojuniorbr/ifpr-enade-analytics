@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Notice } from "@/components/notice";
 import { isAuth0Configured, logoutUrl } from "@/lib/auth0";
@@ -88,10 +89,13 @@ export default async function Login({
           <span className="pointer-events-none absolute top-10 bottom-16 left-[18%] w-px bg-white/70" />
           <span className="pointer-events-none absolute top-24 bottom-8 left-[72%] w-px bg-white/80" />
           <span className="pointer-events-none absolute top-6 bottom-28 right-[12%] w-px bg-white/50" />
-          <img
+          <Image
             src="/undraw-dados.svg"
             alt="Pessoa analisando dados em um painel, ilustração unDraw"
-            className="relative z-10 w-full max-w-md rounded-[28px] bg-white/95 p-6"
+            width={640}
+            height={480}
+            unoptimized
+            className="relative z-10 h-auto w-full max-w-md rounded-[28px] bg-white/95 p-6"
           />
         </aside>
       </div>

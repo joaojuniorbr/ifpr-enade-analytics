@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { deleteAnswer, saveAnswer } from "@/app/admin/respostas/actions";
 import { Messages } from "@/components/admin-table";
 import { StudentAnswers, type StudentAnswerView } from "@/components/student-answers";
@@ -93,9 +94,9 @@ export default async function AnswersPage({
         <button type="submit" className={secondaryButton}>
           Filtrar
         </button>
-        <a href="/admin/respostas" className={secondaryButton}>
+        <Link href="/admin/respostas" className={secondaryButton}>
           Limpar
-        </a>
+        </Link>
       </form>
       <form action={saveAnswer} className={`${cardClass} grid gap-3 md:grid-cols-4`}>
         <select name="timeKey" required className={fieldClass} defaultValue="">
@@ -216,8 +217,11 @@ function groupByStudent(
       ...student,
       exams: [...examsById.values()]
         .sort((a, b) => a.application - b.application)
-        .map(({ application: _application, ...exam }) => ({
-          ...exam,
+        .map((exam) => ({
+          id: exam.id,
+          name: exam.name,
+          hits: exam.hits,
+          total: exam.total,
           rows: exam.rows.sort((a, b) => a.question.localeCompare(b.question, "pt-BR")),
         })),
     }))
