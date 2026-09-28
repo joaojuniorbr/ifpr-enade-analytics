@@ -66,3 +66,9 @@ export async function requireAdmin(): Promise<SessionUser> {
 	if (user.role !== 'ADMIN') redirect('/');
 	return user;
 }
+
+export async function requireStudent(): Promise<SessionUser> {
+	const user = await requireUser();
+	if (user.role !== 'ALUNO') redirect('/admin');
+	return user;
+}

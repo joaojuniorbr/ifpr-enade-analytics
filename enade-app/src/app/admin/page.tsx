@@ -15,7 +15,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      <section className="grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#6d4aff] p-6 text-white md:grid-cols-[1.3fr_0.7fr] md:p-8">
+      <section className="grid items-center gap-6 overflow-hidden rounded-md bg-[#6d4aff] p-6 text-white md:grid-cols-[1.3fr_0.7fr] md:p-8">
         <div>
           <p className="text-sm text-white/75">Bem-vindo de volta</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">Acompanhamento do simulado</h1>
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
           width={640}
           height={480}
           unoptimized
-          className="mx-auto h-auto w-full max-w-xs rounded-3xl bg-white/95 p-4"
+          className="mx-auto h-auto w-full max-w-xs rounded-md bg-white/95 p-4"
         />
       </section>
 

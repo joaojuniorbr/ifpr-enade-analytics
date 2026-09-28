@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { LoginShowcase } from "@/components/login-showcase";
 import { Notice } from "@/components/notice";
 import { isAuth0Configured, logoutUrl } from "@/lib/auth0";
 import { getAuthSession, getOptionalUser } from "@/lib/auth";
@@ -13,7 +14,14 @@ const errorMessages: Record<string, string> = {
 function safeReturnPath(value: string | undefined): string | null {
   if (!value) return null;
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;
-  if (value.startsWith("/admin") || value === "/") return value;
+  if (
+    value === "/" ||
+    value.startsWith("/admin") ||
+    value.startsWith("/simulados") ||
+    value.startsWith("/evolucao")
+  ) {
+    return value;
+  }
   return null;
 }
 
@@ -35,8 +43,8 @@ export default async function Login({
   const loginHref = `/auth/login?returnTo=${encodeURIComponent(returnTo)}`;
 
   return (
-    <main className="flex min-h-dvh items-center justify-center p-4 sm:p-8">
-      <div className="grid w-full max-w-6xl overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_rgba(90,70,180,0.12)] lg:min-h-[720px] lg:grid-cols-2">
+    <main className="flex min-h-dvh flex-col items-center justify-center p-4 sm:p-8">
+      <div className="grid w-full max-w-6xl overflow-hidden rounded-md bg-white shadow-[0_30px_80px_rgba(90,70,180,0.12)] lg:min-h-[720px] lg:grid-cols-2">
         <section className="flex flex-col px-8 py-10 sm:px-14 sm:py-12">
           <Logo />
           <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">
@@ -85,26 +93,29 @@ export default async function Login({
             abre para os e-mails autorizados.
           </p>
         </section>
-        <aside className="relative flex min-h-72 items-center justify-center overflow-hidden bg-gradient-to-b from-[#8b74ff] via-[#6d4aff] to-[#5430e0] px-8 py-12">
-          <span className="pointer-events-none absolute top-10 bottom-16 left-[18%] w-px bg-white/70" />
-          <span className="pointer-events-none absolute top-24 bottom-8 left-[72%] w-px bg-white/80" />
-          <span className="pointer-events-none absolute top-6 bottom-28 right-[12%] w-px bg-white/50" />
-          <Image
-            src="/undraw-dados.svg"
-            alt="Pessoa analisando dados em um painel, ilustração unDraw"
-            width={640}
-            height={480}
-            unoptimized
-            className="relative z-10 h-auto w-full max-w-md rounded-[28px] bg-white/95 p-6"
-          />
+        <aside className="relative flex min-h-[28rem] items-stretch overflow-hidden bg-gradient-to-b from-[#8b74ff] via-[#6d4aff] to-[#5430e0] px-6 py-8 text-white sm:px-10 sm:py-10">
+          <LoginShowcase />
         </aside>
       </div>
+      <ul className="mx-auto mt-6 grid w-full max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          ["/undraw-books.svg", "Leituras"],
+          ["/undraw-teaching.svg", "Aula"],
+          ["/undraw-quiz.svg", "Questões"],
+          ["/undraw-dados.svg", "Acompanhamento"],
+        ].map(([src, label]) => (
+          <li key={src} className="rounded-md bg-white/80 p-3 text-center">
+            <Image src={src} alt="" width={240} height={160} unoptimized className="mx-auto h-24 w-auto" />
+            <p className="mt-2 text-xs font-medium text-slate-500">{label}</p>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
 
 const loginButton =
-  "flex h-12 w-full items-center justify-center rounded-xl bg-[#6d4aff] text-sm font-medium text-white shadow-sm hover:bg-[#5b3ae0]";
+  "flex h-12 w-full items-center justify-center rounded-md bg-[#6d4aff] text-sm font-medium text-white shadow-sm hover:bg-[#5b3ae0]";
 
 function Logo() {
   return (

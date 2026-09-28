@@ -1,33 +1,37 @@
-import { deleteExam, saveExam } from "@/app/admin/simulados/actions";
+import Link from "next/link";
+import { deleteExam } from "@/app/admin/simulados/actions";
 import { Messages, AdminTable } from "@/components/admin-table";
-import { primaryButton, fieldClass, cardClass } from "@/lib/styles";
+import { FormDrawer } from "@/components/form-drawer";
+import { ExamFields } from "@/components/forms/exam-fields";
+import { withForm } from "@/lib/forms";
 import { prisma } from "@/lib/prisma";
+import { primaryButton } from "@/lib/styles";
 
 export const metadata = { title: "Simulados" };
 
 export default async function ExamsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string; error?: string }>;
+  searchParams: Promise<{ notice?: string; error?: string; form?: string }>;
 }) {
   const params = await searchParams;
   const exams = await prisma.dim_Simulado.findMany({ orderBy: { NumeroAplicacao: "asc" } });
+  const creating = params.form === "novo";
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Simulados</h1>
-        <p className="mt-1 text-sm text-slate-600">Dim_Simulado. Cada aplicação do semestre.</p>
-      </div>
-      <Messages notice={params.notice} error={params.error} />
-      <form action={saveExam} className={`${cardClass} grid gap-3 md:grid-cols-4`}>
-        <input name="code" required maxLength={64} placeholder="Código" className={fieldClass} />
-        <input name="applicationNumber" required type="number" min={1} placeholder="Aplicação" className={fieldClass} />
-        <input name="description" required maxLength={255} placeholder="Descrição" className={fieldClass} />
-        <button type="submit" className={primaryButton}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">Simulados</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Abra um simulado para incluir perguntas e as respostas de múltipla escolha.
+          </p>
+        </div>
+        <Link href={withForm("/admin/simulados", params, "novo")} className={primaryButton}>
           Incluir
-        </button>
-      </form>
+        </Link>
+      </div>
+      <Messages notice={params.notice} error={creating ? undefined : params.error} />
       <AdminTable
         headers={["Chave", "Código", "Aplicação", "Descrição"]}
         deleteAction={deleteExam}
@@ -42,6 +46,12 @@ export default async function ExamsPage({
           ],
         }))}
       />
+      <FormDrawer open={creating} title="Incluir simulado" closeHref={withForm("/admin/simulados", params)}>
+        <Messages error={params.error} />
+        <div className="mt-4">
+          <ExamFields />
+        </div>
+      </FormDrawer>
     </div>
   );
 }

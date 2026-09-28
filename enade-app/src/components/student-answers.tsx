@@ -64,7 +64,7 @@ export function StudentAnswers({
             key={student.id}
             type="button"
             onClick={() => setSelectedId(student.id)}
-            className="rounded-[24px] bg-white p-5 text-left shadow-[0_10px_30px_rgba(90,70,180,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(90,70,180,0.12)]"
+            className="rounded-md bg-white p-5 text-left shadow-[0_10px_30px_rgba(90,70,180,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(90,70,180,0.12)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -108,13 +108,13 @@ export function StudentAnswers({
               <button
                 type="button"
                 onClick={() => setSelectedId(null)}
-                className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-[#f6f3ff]"
+                className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-[#f6f3ff]"
               >
                 Fechar
               </button>
             </header>
             <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-              <section className="rounded-[24px] bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+              <section className="rounded-md bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
                 <div className="flex items-end justify-between gap-3">
                   <p className="text-sm text-slate-500">Visão geral</p>
                   <p className="text-2xl font-semibold text-slate-900">
@@ -127,7 +127,7 @@ export function StudentAnswers({
                 </p>
               </section>
               {selected.exams.map((exam) => (
-                <section key={exam.id} className="rounded-[24px] bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+                <section key={exam.id} className="rounded-md bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <h3 className="font-semibold text-slate-900">{exam.name}</h3>
                     <p className="text-sm text-slate-600">

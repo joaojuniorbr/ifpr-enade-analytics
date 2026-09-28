@@ -64,10 +64,12 @@ No login, se o e-mail estiver verificado e na lista, a sessão entra como `ADMIN
 
 ## Uso
 
-O MySQL desta aplicação é o modelo estrela já carregado: `Dim_Questao`, `Dim_Aluno_Anonimo`, `Dim_Tempo`, `Dim_Simulado` e `Fato_Respostas`.
+O MySQL desta aplicação guarda o modelo estrela já carregado (`Dim_Questao`, `Dim_Aluno_Anonimo`, `Dim_Tempo`, `Dim_Simulado` e `Fato_Respostas`) e as tabelas da prova: `Alternativa`, `Simulado_Questao`, `Tentativa` e `Tentativa_Item`. O grão de `Fato_Respostas` continua uma resposta por aluno, questão e simulado. As tentativas do aluno, inclusive as repetições, ficam em `Tentativa`.
 
+- `/` — aluno: simulados disponíveis, com perguntas em ordem sorteada e novas tentativas
+- `/evolucao` — acertos de cada tentativa do aluno
 - `/admin` — acompanhamento: taxa por eixo, turma, simulado e questão
-- `/admin/questoes`, `/admin/simulados`, `/admin/alunos`, `/admin/tempo`, `/admin/respostas` — cadastro dessas tabelas
+- `/admin/questoes`, `/admin/simulados`, `/admin/alunos`, `/admin/tempo`, `/admin/respostas` — cadastro. No simulado entram o enunciado e as respostas, com uma correta
 
 O aluno no banco é só `CodigoAlunoAnonimo` e turma. Nome e e-mail ficam na sessão do Auth0 e não são gravados aqui. A taxa de acerto é calculada na leitura. O dashboard da disciplina segue no Power BI Desktop.
 
@@ -75,4 +77,4 @@ Os eixos são os 16 da Portaria Inep nº 171/2026, art. 6º. A dificuldade grava
 
 ## Banco
 
-O schema Prisma espelha as cinco tabelas que já existem no MySQL. Não rode uma migration que recrie essas tabelas por cima dos dados. `npx prisma generate` atualiza o client.
+O schema Prisma espelha o modelo estrela e as tabelas da prova. `npm run db:deploy` aplica migrations novas sem recriar as tabelas que já têm dados. `npx prisma generate` atualiza o client.

@@ -9,7 +9,7 @@ export default function RouteError({
 	reset: () => void;
 }) {
 	return (
-		<section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+		<section className='rounded-md border border-slate-200 bg-white p-6 shadow-sm'>
 			<h1 className='text-2xl font-semibold text-slate-900'>
 				Não foi possível abrir esta tela
 			</h1>

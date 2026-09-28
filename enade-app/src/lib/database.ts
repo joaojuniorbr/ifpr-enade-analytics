@@ -9,7 +9,7 @@ export function databaseMessage(error: unknown, action: "save" | "delete"): stri
   }
   if (error.code === "P2003") {
     return action === "delete"
-      ? "Há respostas ligadas a este registro."
+      ? "Há respostas ou tentativas ligadas a este registro."
       : "Uma das chaves informadas não existe.";
   }
   if (error.code === "P2025") return "Registro não encontrado.";

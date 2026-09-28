@@ -9,8 +9,8 @@ import { prisma } from "@/lib/prisma";
 import { zodMessage, timeSchema } from "@/lib/validation";
 
 function destination(key: number | null, error: string) {
-  const url = key ? `/admin/tempo/${key}` : "/admin/tempo";
-  redirect(`${url}?error=${encodeURIComponent(error)}`);
+  const form = key ? String(key) : "novo";
+  redirect(`/admin/tempo?form=${form}&error=${encodeURIComponent(error)}`);
 }
 
 export async function saveTime(formData: FormData) {

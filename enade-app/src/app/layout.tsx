@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import { headers } from 'next/headers';
+import { AntdProvider } from '@/components/antd-provider';
 import { Shell } from '@/components/shell';
 import { getOptionalUser } from '@/lib/auth';
 import './globals.css';
@@ -24,13 +25,13 @@ export default async function RootLayout({
 	const pathname = (await headers()).get('x-pathname') ?? '';
 	const user = pathname === '/login' ? null : await getOptionalUser();
 
-	if (pathname === '/login') {
+	if (!user) {
 		return (
 			<html lang='pt-BR'>
 				<body
 					className={`${geist.className} bg-[#ece8fb] text-slate-900 antialiased`}
 				>
-					{children}
+					<AntdProvider>{children}</AntdProvider>
 				</body>
 			</html>
 		);
@@ -39,12 +40,11 @@ export default async function RootLayout({
 	return (
 		<html lang='pt-BR'>
 			<body className={`${geist.className} antialiased`}>
-				<Shell
-					user={user ? { name: user.name, role: user.role } : null}
-					pathname={pathname}
-				>
-					{children}
-				</Shell>
+				<AntdProvider>
+					<Shell user={{ name: user.name, role: user.role }} pathname={pathname}>
+						{children}
+					</Shell>
+				</AntdProvider>
 			</body>
 		</html>
 	);

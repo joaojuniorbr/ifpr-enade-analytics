@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { deleteAnswer, saveAnswer } from "@/app/admin/respostas/actions";
+import { notFound } from "next/navigation";
+import { deleteAnswer } from "@/app/admin/respostas/actions";
 import { Messages } from "@/components/admin-table";
+import { FormDrawer } from "@/components/form-drawer";
+import { AnswerFields } from "@/components/forms/answer-fields";
 import { StudentAnswers, type StudentAnswerView } from "@/components/student-answers";
+import { withForm } from "@/lib/forms";
 import { primaryButton, secondaryButton, fieldClass, cardClass } from "@/lib/styles";
 import { prisma } from "@/lib/prisma";
 
@@ -13,6 +17,7 @@ export default async function AnswersPage({
   searchParams: Promise<{
     notice?: string;
     error?: string;
+    form?: string;
     studentKey?: string;
     examKey?: string;
     questionKey?: string;
@@ -46,17 +51,33 @@ export default async function AnswersPage({
       (timeKey == null || answer.TempoKey === timeKey),
   );
   const overviews = groupByStudent(filtered);
+  const creating = params.form === "novo";
+  const editingKey = Number(params.form);
+  const editing = answers.find((answer) => answer.RespostaKey === editingKey);
+  if (params.form && !creating && !editing) notFound();
+  const dateOptions = timeRecords.map((timeRecord) => ({
+    id: timeRecord.TempoKey,
+    label: `${timeRecord.TempoKey} · ${timeRecord.NomeMes}/${timeRecord.Ano}`,
+  }));
+  const studentOptions = students.map((student) => ({ id: student.AlunoKey, label: student.CodigoAlunoAnonimo }));
+  const questionOptions = questions.map((question) => ({ id: question.QuestaoKey, label: question.CodigoQuestao }));
+  const examOptions = exams.map((exam) => ({ id: exam.SimuladoKey, label: exam.CodigoSimulado }));
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Respostas</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Um card por aluno anônimo. Clique para ver cada simulado e cada questão. {filtered.length} respostas em{" "}
-          {overviews.length} alunos.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">Respostas</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Um card por aluno anônimo. Clique para ver cada simulado e cada questão. {filtered.length} respostas em{" "}
+            {overviews.length} alunos.
+          </p>
+        </div>
+        <Link href={withForm("/admin/respostas", params, "novo")} className={primaryButton}>
+          Incluir
+        </Link>
       </div>
-      <Messages notice={params.notice} error={params.error} />
+      <Messages notice={params.notice} error={creating || editing ? undefined : params.error} />
       <form method="get" className={`${cardClass} grid gap-3 md:grid-cols-4`}>
         <p className="text-sm text-slate-600 md:col-span-4">Filtros opcionais. Em branco, a lista mostra todas as respostas.</p>
         <select name="timeKey" className={fieldClass} defaultValue={params.timeKey ?? ""}>
@@ -98,58 +119,23 @@ export default async function AnswersPage({
           Limpar
         </Link>
       </form>
-      <form action={saveAnswer} className={`${cardClass} grid gap-3 md:grid-cols-4`}>
-        <select name="timeKey" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
-            Data
-          </option>
-          {timeRecords.map((timeRecord) => (
-            <option key={timeRecord.TempoKey} value={timeRecord.TempoKey}>
-              {timeRecord.TempoKey} · {timeRecord.NomeMes}/{timeRecord.Ano}
-            </option>
-          ))}
-        </select>
-        <select name="studentKey" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
-            Aluno
-          </option>
-          {students.map((student) => (
-            <option key={student.AlunoKey} value={student.AlunoKey}>
-              {student.CodigoAlunoAnonimo}
-            </option>
-          ))}
-        </select>
-        <select name="questionKey" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
-            Questão
-          </option>
-          {questions.map((question) => (
-            <option key={question.QuestaoKey} value={question.QuestaoKey}>
-              {question.CodigoQuestao}
-            </option>
-          ))}
-        </select>
-        <select name="examKey" required className={fieldClass} defaultValue="">
-          <option value="" disabled>
-            Simulado
-          </option>
-          {exams.map((exam) => (
-            <option key={exam.SimuladoKey} value={exam.SimuladoKey}>
-              {exam.CodigoSimulado}
-            </option>
-          ))}
-        </select>
-        <input name="answer" required maxLength={8} placeholder="Resposta" className={fieldClass} />
-        <select name="wasCorrect" required className={fieldClass} defaultValue="0">
-          <option value="1">Acertou</option>
-          <option value="0">Errou</option>
-        </select>
-        <input name="seconds" type="number" min={0} step="0.01" placeholder="Segundos" className={fieldClass} />
-        <button type="submit" className={primaryButton}>
-          Incluir
-        </button>
-      </form>
       <StudentAnswers students={overviews} deleteAction={deleteAnswer} />
+      <FormDrawer
+        open={creating || Boolean(editing)}
+        title={editing ? "Editar resposta" : "Incluir resposta"}
+        closeHref={withForm("/admin/respostas", params)}
+      >
+        <Messages error={params.error} />
+        <div className="mt-4">
+          <AnswerFields
+            answer={editing}
+            dates={dateOptions}
+            students={studentOptions}
+            questions={questionOptions}
+            exams={examOptions}
+          />
+        </div>
+      </FormDrawer>
     </div>
   );
 }
@@ -201,7 +187,7 @@ function groupByStudent(
     exam.hits += answer.Acertou === 1 ? 1 : 0;
     exam.rows.push({
       id: String(answer.RespostaKey),
-      href: `/admin/respostas/${answer.RespostaKey}`,
+      href: `/admin/respostas?form=${answer.RespostaKey}`,
       question: answer.Dim_Questao.CodigoQuestao,
       axis: answer.Dim_Questao.EixoTematico,
       answer: answer.RespostaDada,

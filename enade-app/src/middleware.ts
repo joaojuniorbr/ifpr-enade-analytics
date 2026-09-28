@@ -5,6 +5,16 @@ function isProtected(pathname: string): boolean {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
+function needsSession(pathname: string): boolean {
+  if (pathname === "/login" || pathname.startsWith("/auth") || pathname.startsWith("/api")) return false;
+  return (
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/simulados") ||
+    pathname.startsWith("/evolucao")
+  );
+}
+
 function redirectToLogin(request: NextRequest, source: NextResponse, reason?: string) {
   const url = request.nextUrl.clone();
   url.pathname = "/login";
@@ -52,7 +62,7 @@ export async function middleware(request: NextRequest) {
     return authResponse;
   }
 
-  if (isProtected(pathname)) {
+  if (needsSession(pathname)) {
     const session = await auth0.getSession(request);
     if (!session) return redirectToLogin(request, authResponse);
   }

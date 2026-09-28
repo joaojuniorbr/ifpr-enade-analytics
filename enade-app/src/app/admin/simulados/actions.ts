@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { databaseMessage } from "@/lib/database";
 import { prisma } from "@/lib/prisma";
+import { isReadyQuestion } from "@/lib/questions";
 import { zodMessage, examSchema } from "@/lib/validation";
 
 function destination(key: number | null, error: string) {
-  const url = key ? `/admin/simulados/${key}` : "/admin/simulados";
-  redirect(`${url}?error=${encodeURIComponent(error)}`);
+  const errorQuery = `error=${encodeURIComponent(error)}`;
+  if (key) redirect(`/admin/simulados/${key}?form=dados&${errorQuery}`);
+  redirect(`/admin/simulados?form=novo&${errorQuery}`);
 }
 
 export async function saveExam(formData: FormData) {
@@ -70,4 +72,57 @@ export async function deleteExam(formData: FormData) {
   revalidatePath("/admin/simulados");
   revalidatePath("/admin");
   redirect("/admin/simulados?notice=deleted");
+}
+
+export async function attachQuestion(formData: FormData) {
+  await requireAdmin();
+  const examKey = Number(formData.get("examKey"));
+  const questionKey = Number(formData.get("questionKey"));
+  if (!Number.isInteger(examKey) || !Number.isInteger(questionKey)) {
+    redirect("/admin/simulados?error=Pergunta%20inv%C3%A1lida.");
+  }
+
+  const question = await prisma.dim_Questao.findUnique({
+    where: { QuestaoKey: questionKey },
+    include: { Alternativas: true },
+  });
+  if (!question || !isReadyQuestion(question)) {
+    redirect(`/admin/simulados/${examKey}?form=vincular&error=${encodeURIComponent("A pergunta precisa de enunciado e uma resposta correta.")}`);
+  }
+
+  try {
+    await prisma.simulado_Questao.create({
+      data: { SimuladoKey: examKey, QuestaoKey: questionKey },
+    });
+  } catch (error) {
+    const message = databaseMessage(error, "save");
+    if (message) redirect(`/admin/simulados/${examKey}?form=vincular&error=${encodeURIComponent(message)}`);
+    throw error;
+  }
+
+  revalidatePath(`/admin/simulados/${examKey}`);
+  redirect(`/admin/simulados/${examKey}?notice=saved`);
+}
+
+export async function detachQuestion(formData: FormData) {
+  await requireAdmin();
+  const [examKey, questionKey] = String(formData.get("id") ?? "")
+    .split(":")
+    .map(Number);
+  if (!Number.isInteger(examKey) || !Number.isInteger(questionKey)) {
+    redirect("/admin/simulados?error=Pergunta%20inv%C3%A1lida.");
+  }
+
+  try {
+    await prisma.simulado_Questao.delete({
+      where: { SimuladoKey_QuestaoKey: { SimuladoKey: examKey, QuestaoKey: questionKey } },
+    });
+  } catch (error) {
+    const message = databaseMessage(error, "delete");
+    if (message) redirect(`/admin/simulados/${examKey}?error=${encodeURIComponent(message)}`);
+    throw error;
+  }
+
+  revalidatePath(`/admin/simulados/${examKey}`);
+  redirect(`/admin/simulados/${examKey}?notice=deleted`);
 }

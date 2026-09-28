@@ -12,6 +12,11 @@ const adminLinks = [
 	{ href: '/admin/respostas', label: 'Respostas' },
 ];
 
+const studentLinks = [
+	{ href: '/', label: 'Simulados' },
+	{ href: '/evolucao', label: 'Evolução' },
+];
+
 export function Shell({
 	user,
 	pathname,
@@ -21,15 +26,12 @@ export function Shell({
 	pathname: string;
 	children: React.ReactNode;
 }) {
-	const links = [
-		{ href: '/', label: 'Início' },
-		...(user?.role === 'ADMIN' ? adminLinks : []),
-	];
+	const links = user?.role === 'ADMIN' ? adminLinks : studentLinks;
 
 	return (
-		<div className='min-h-dvh bg-[#ece8fb] p-3 text-slate-900 md:p-5'>
-			<div className='mx-auto flex min-h-[calc(100dvh-1.5rem)] max-w-[1400px] gap-4 md:min-h-[calc(100dvh-2.5rem)]'>
-				<aside className='sticky top-5 hidden h-[calc(100dvh-2.5rem)] w-64 shrink-0 flex-col rounded-[28px] bg-white p-4 shadow-[0_10px_30px_rgba(90,70,180,0.06)] md:flex'>
+		<div className='min-h-dvh bg-[#f4f2fb] text-slate-900'>
+			<div className='flex min-h-dvh'>
+				<aside className='sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[#e7e2f5] bg-white p-4 md:flex'>
 					<Link href='/' className='flex items-center gap-2 px-2 py-2'>
 						<Mark />
 						<span className='text-lg font-semibold tracking-tight'>
@@ -47,7 +49,7 @@ export function Shell({
 							</Link>
 						))}
 					</nav>
-					<div className='rounded-2xl bg-[#6d4aff] p-4 text-white'>
+					<div className='rounded-md bg-[#6d4aff] p-4 text-white'>
 						<p className='text-sm font-medium'>Preparação ENADE 2026</p>
 						<p className='mt-1 text-xs leading-5 text-white/80'>
 							Simulado de treino. Não vale nota e não substitui a prova oficial.
@@ -59,7 +61,7 @@ export function Shell({
 								<div className='min-w-0'>
 									<p className='truncate text-sm font-medium'>{user.name}</p>
 									<p className='text-xs text-slate-400'>
-										{user.role === 'ADMIN' ? 'Administrador' : 'Conta'}
+										{user.role === 'ADMIN' ? 'Administrador' : 'Aluno'}
 									</p>
 								</div>
 								<a
@@ -80,8 +82,8 @@ export function Shell({
 					</div>
 				</aside>
 
-				<div className='min-w-0 flex-1'>
-					<div className='mb-4 rounded-[24px] bg-white p-3 shadow-[0_10px_30px_rgba(90,70,180,0.06)] md:hidden'>
+				<div className='min-w-0 flex-1 p-4 md:p-6'>
+					<div className='mb-4 rounded-md border border-[#e7e2f5] bg-white p-3 md:hidden'>
 						<div className='flex items-center justify-between px-1'>
 							<Link href='/' className='flex items-center gap-2 font-semibold'>
 								<Mark />
@@ -128,14 +130,14 @@ function navClass(pathname: string, href: string) {
 			? pathname === href
 			: pathname === href || pathname.startsWith(`${href}/`);
 	return active
-		? 'rounded-xl bg-[#f3efff] px-3 py-2.5 text-sm font-medium text-[#6d4aff]'
-		: 'rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-[#f7f5ff]';
+		? 'rounded-md bg-[#f3efff] px-3 py-2.5 text-sm font-medium text-[#6d4aff]'
+		: 'rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-[#f7f5ff]';
 }
 
 function Mark() {
 	return (
 		<span
-			className='grid size-8 place-items-center rounded-xl bg-[#6d4aff] text-white'
+			className='grid size-8 place-items-center rounded-md bg-[#6d4aff] text-white'
 			aria-hidden='true'
 		>
 			<svg viewBox='0 0 32 32' className='size-4'>

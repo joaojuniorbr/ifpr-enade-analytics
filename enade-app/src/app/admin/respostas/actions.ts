@@ -8,8 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { zodMessage, answerSchema } from "@/lib/validation";
 
 function destination(key: number | null, error: string) {
-  const url = key ? `/admin/respostas/${key}` : "/admin/respostas";
-  redirect(`${url}?error=${encodeURIComponent(error)}`);
+  const form = key ? String(key) : "novo";
+  redirect(`/admin/respostas?form=${form}&error=${encodeURIComponent(error)}`);
 }
 
 export async function saveAnswer(formData: FormData) {

@@ -8,11 +8,54 @@ export function zodMessage(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Revise os campos.";
 }
 
-export const questionSchema = z.object({
-  code: z.string().trim().min(1, "Informe o código.").max(32, "O código pode ter no máximo 32 caracteres."),
-  axis: z.enum(axes, "Escolha um eixo da Portaria 171/2026."),
-  level: z.enum(levels, "A dificuldade é Fácil, Médio ou Difícil."),
-});
+export const LETTERS = ["A", "B", "C", "D", "E"] as const;
+
+const letterEnum = LETTERS as unknown as [string, ...string[]];
+
+export const questionSchema = z
+  .object({
+    code: z.string().trim().min(1, "Informe o código.").max(32, "O código pode ter no máximo 32 caracteres."),
+    axis: z.enum(axes, "Escolha um eixo da Portaria 171/2026."),
+    level: z.enum(levels, "A dificuldade é Fácil, Médio ou Difícil."),
+    statement: z
+      .string()
+      .trim()
+      .min(1, "Informe o enunciado.")
+      .max(4000, "O enunciado pode ter no máximo 4000 caracteres."),
+    alternatives: z
+      .array(
+        z.object({
+          letter: z.enum(letterEnum),
+          text: z.string().trim().min(1).max(1000, "Cada resposta pode ter no máximo 1000 caracteres."),
+          correct: z.boolean(),
+        }),
+      )
+      .min(2, "Inclua pelo menos duas respostas.")
+      .max(5, "Uma questão tem no máximo cinco respostas."),
+  })
+  .superRefine((value, context) => {
+    const letters = new Set(value.alternatives.map((item) => item.letter));
+    if (letters.size !== value.alternatives.length) {
+      context.addIssue({ code: "custom", message: "As letras das respostas precisam ser únicas.", path: ["alternatives"] });
+    }
+    const correct = value.alternatives.filter((item) => item.correct).length;
+    if (correct !== 1) {
+      context.addIssue({
+        code: "custom",
+        message: "Marque exatamente uma resposta correta.",
+        path: ["alternatives"],
+      });
+    }
+  });
+
+export function alternativesFromForm(formData: FormData) {
+  const correct = String(formData.get("correctLetter") ?? "");
+  return LETTERS.flatMap((letter) => {
+    const text = String(formData.get(`alt-${letter}`) ?? "").trim();
+    if (!text) return [];
+    return [{ letter, text, correct: correct === letter }];
+  });
+}
 
 export const examSchema = z.object({
   code: z.string().trim().min(1, "Informe o código.").max(64, "O código pode ter no máximo 64 caracteres."),

@@ -4,7 +4,7 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function currentClient(): PrismaClient | undefined {
 	const existing = globalForPrisma.prisma;
-	if (existing && 'fato_Respostas' in existing) return existing;
+	if (existing && 'tentativa' in existing && 'alternativa' in existing) return existing;
 	return undefined;
 }
 

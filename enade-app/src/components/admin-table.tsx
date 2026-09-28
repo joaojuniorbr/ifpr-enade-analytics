@@ -23,7 +23,7 @@ export function AdminTable({
 }) {
   if (rows.length === 0) return <p className="text-sm text-slate-600">Nenhum registro.</p>;
   return (
-    <div className="overflow-x-auto rounded-[24px] bg-white shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+    <div className="overflow-x-auto rounded-md bg-white shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
       <table className="w-full text-left text-sm">
         <thead className="text-xs text-slate-500">
           <tr>
