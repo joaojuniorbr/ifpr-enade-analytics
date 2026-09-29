@@ -1,133 +1,184 @@
 import Image from "next/image";
 import Link from "next/link";
-import { DashboardCharts } from "@/components/dashboard-charts";
-import { cardClass } from "@/lib/styles";
-import { formatRate, toChartPoints } from "@/lib/format";
-import { loadAdminDashboard, type GroupSummary, type QuestionSummary } from "@/lib/dashboard";
+import { InlineRate, RateBar } from "@/components/rate-bar";
+import { cardClass, secondaryButton } from "@/lib/styles";
+import { formatCount, formatRate } from "@/lib/format";
+import { loadAdminDashboard, type GroupSummary } from "@/lib/dashboard";
 
 export const metadata = { title: "Acompanhamento" };
 
 export default async function DashboardPage() {
   const dashboard = await loadAdminDashboard();
+  const axes = [...dashboard.byAxis].reverse();
+  const classes = [...dashboard.byClass].reverse();
   const worstAxis = dashboard.byAxis[0];
   const classGap = gapBetweenClasses(dashboard.byClass);
   const worstQuestion = dashboard.byQuestion[0];
 
   return (
-    <div className="space-y-4">
-      <section className="grid items-center gap-6 overflow-hidden rounded-md bg-[#6d4aff] p-6 text-white md:grid-cols-[1.3fr_0.7fr] md:p-8">
+    <div className="space-y-5">
+      <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-sm text-white/75">Bem-vindo de volta</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Acompanhamento do simulado</h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-white/80">
-            Totais de Fato_Respostas. A taxa é acertos divididos pelas respostas. O dashboard da
-            disciplina continua no Power BI Desktop.
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Acompanhamento do simulado</h1>
+          <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+            A taxa é acertos divididos pelas respostas registradas nesta aplicação.
           </p>
         </div>
-        <Image
-          src="/undraw-dados.svg"
-          alt=""
-          width={640}
-          height={480}
-          unoptimized
-          className="mx-auto h-auto w-full max-w-xs rounded-md bg-white/95 p-4"
-        />
-      </section>
+        <Image src="/undraw-dados.svg" alt="" width={280} height={200} unoptimized className="hidden h-28 w-auto md:block" />
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
+        <Metric label="Respostas" value={formatCount(dashboard.total)} detail="Registros nesta aplicação" />
+        <Metric
+          label="Acertos"
+          value={formatCount(dashboard.hits)}
+          detail={`${formatRate(dashboard.hits, dashboard.total)} das respostas`}
+        />
+        <Metric label="Taxa geral" value={formatRate(dashboard.hits, dashboard.total)} detail="Acertos ÷ respostas" />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
         <article className={cardClass}>
-          <p className="text-sm text-slate-500">Respostas</p>
-          <p className="mt-2 text-3xl font-semibold">{dashboard.total}</p>
+          <CardTitle title="Taxa por eixo" aside="Operacional" />
+          {axes.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-600">Nenhuma resposta gravada.</p>
+          ) : (
+            <div className="mt-5 space-y-4">
+              {axes.map((item) => (
+                <RateBar key={item.name} label={item.name} hits={item.hits} total={item.total} />
+              ))}
+            </div>
+          )}
         </article>
+
         <article className={cardClass}>
-          <p className="text-sm text-slate-500">Acertos</p>
-          <p className="mt-2 text-3xl font-semibold">{dashboard.hits}</p>
+          <CardTitle title="Taxa por turma" aside="Comparativo" />
+          {classes.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-600">Nenhuma resposta gravada.</p>
+          ) : (
+            <div className="mt-5 space-y-4">
+              {classes.map((item) => (
+                <RateBar key={item.name} label={item.name} hits={item.hits} total={item.total} />
+              ))}
+            </div>
+          )}
         </article>
+
         <article className={cardClass}>
-          <p className="text-sm text-slate-500">Taxa geral</p>
-          <p className="mt-2 text-3xl font-semibold">{formatRate(dashboard.hits, dashboard.total)}</p>
+          <CardTitle title="Insights" aside="Resumo" />
+          <dl className="mt-2 divide-y divide-[#eef1ea]">
+            <Insight
+              label="Pior eixo"
+              value={worstAxis?.name ?? "—"}
+              detail={worstAxis ? `${formatRate(worstAxis.hits, worstAxis.total)} de acerto` : "Sem respostas."}
+            />
+            <Insight
+              label="Diferença entre turmas"
+              value={classGap ? `${classGap.points} p.p.` : "—"}
+              detail={classGap ? `${classGap.higher} × ${classGap.lower}` : "É preciso pelo menos duas turmas."}
+            />
+            <Insight
+              label="Questão com menor taxa"
+              value={worstQuestion?.code ?? "—"}
+              detail={
+                worstQuestion
+                  ? `${formatRate(worstQuestion.hits, worstQuestion.total)} · ${worstQuestion.axis}`
+                  : "Sem respostas."
+              }
+            />
+          </dl>
         </article>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Insight
-          label="Pior eixo"
-          value={worstAxis?.name ?? "—"}
-          detail={worstAxis ? `${worstAxis.hits}/${worstAxis.total} · ${formatRate(worstAxis.hits, worstAxis.total)}` : "Sem respostas."}
-        />
-        <Insight
-          label="Diferença entre turmas"
-          value={classGap ? `${classGap.points} p.p.` : "—"}
-          detail={
-            classGap
-              ? `${classGap.higher} acima de ${classGap.lower}`
-              : "É preciso pelo menos duas turmas."
-          }
-        />
-        <Insight
-          label="Questão com menor taxa"
-          value={worstQuestion?.code ?? "—"}
-          detail={
-            worstQuestion
-              ? `${worstQuestion.axis} · ${formatRate(worstQuestion.hits, worstQuestion.total)}`
-              : "Sem respostas."
-          }
-        />
-      </div>
-
-      <DashboardCharts
-        axes={toChartPoints(dashboard.byAxis)}
-        classes={toChartPoints(dashboard.byClass)}
-        exams={toChartPoints(dashboard.byExam)}
-      />
+      <article className={cardClass}>
+        <CardTitle title="Taxa por simulado" aside="Por aplicação" />
+        {dashboard.byExam.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-600">Nenhuma resposta gravada.</p>
+        ) : (
+          <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center">
+            {dashboard.byExam.map((exam) => (
+              <div key={exam.name} className="min-w-0 flex-1">
+                <RateBar label={exam.name} hits={exam.hits} total={exam.total} />
+              </div>
+            ))}
+          </div>
+        )}
+      </article>
 
       <section className={cardClass}>
-        <h2 className="text-lg font-semibold text-slate-900">Por questão</h2>
-        <p className="mt-1 text-sm text-slate-500">Da menor taxa para a maior.</p>
-        {dashboard.byQuestion.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">Nenhuma questão nas respostas.</p>
-        ) : (
-          <ul className="mt-4 space-y-3">
-            {dashboard.byQuestion.map((question) => (
-              <QuestionBar key={question.code} question={question} />
-            ))}
-          </ul>
-        )}
-        <p className="mt-4 text-sm">
-          <Link href="/admin/questoes" className="font-medium text-[#6d4aff] hover:underline">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-950">Por questão</h2>
+            <p className="mt-1 text-sm text-slate-500">Ordenado da menor taxa a maior.</p>
+          </div>
+          <Link href="/admin/questoes" className={secondaryButton}>
             Cadastrar questões
           </Link>
+        </div>
+        {dashboard.byQuestion.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-600">Nenhuma questão nas respostas.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[36rem] text-left text-sm">
+              <thead className="text-slate-400">
+                <tr>
+                  <th className="py-3 pr-4 font-medium">Código</th>
+                  <th className="py-3 pr-4 font-medium">Eixo</th>
+                  <th className="py-3 pr-4 font-medium">Acertos/total</th>
+                  <th className="py-3 font-medium">Taxa</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dashboard.byQuestion.map((question) => (
+                  <tr key={question.code} className="border-t border-[#eef1ea]">
+                    <td className="py-3.5 pr-4 font-medium text-slate-800">{question.code}</td>
+                    <td className="py-3.5 pr-4 text-slate-600">{question.axis}</td>
+                    <td className="py-3.5 pr-4 tabular-nums text-slate-600">
+                      {question.hits}/{question.total}
+                    </td>
+                    <td className="py-3.5">
+                      <InlineRate hits={question.hits} total={question.total} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="mt-4 text-sm text-slate-500">
+          A análise da disciplina continua no Power BI; esta tela é o acompanhamento operacional.
         </p>
       </section>
     </div>
   );
 }
 
-function Insight({ label, value, detail }: { label: string; value: string; detail: string }) {
+function Metric({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <article className={cardClass}>
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-2 text-lg font-semibold leading-snug break-words text-slate-900">{value}</p>
-      <p className="mt-1 text-sm text-slate-600">{detail}</p>
+      <p className="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{value}</p>
+      <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </article>
   );
 }
 
-function QuestionBar({ question }: { question: QuestionSummary }) {
-  const width = question.total <= 0 ? 0 : Math.round((question.hits / question.total) * 1000) / 10;
+function CardTitle({ title, aside }: { title: string; aside: string }) {
   return (
-    <li>
-      <div className="flex items-baseline justify-between gap-3 text-sm">
-        <span className="font-medium text-slate-900">{question.code}</span>
-        <span className="text-slate-600">
-          {question.hits}/{question.total} · {formatRate(question.hits, question.total)}
-        </span>
-      </div>
-      <p className="mt-0.5 text-xs text-slate-500">{question.axis}</p>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efeaff]">
-        <div className="h-full rounded-full bg-[#6d4aff]" style={{ width: `${width}%` }} />
-      </div>
-    </li>
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="font-semibold text-slate-950">{title}</h2>
+      <span className="text-xs text-slate-400">{aside}</span>
+    </div>
+  );
+}
+
+function Insight({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return (
+    <div className="py-4">
+      <dt className="text-sm text-slate-500">{label}</dt>
+      <dd className="mt-1 text-xl font-semibold text-slate-950">{value}</dd>
+      <p className="mt-1 text-sm text-slate-500">{detail}</p>
+    </div>
   );
 }
 

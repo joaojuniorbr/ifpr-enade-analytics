@@ -9,7 +9,7 @@ import { formatRate } from "@/lib/format";
 import { isReadyQuestion } from "@/lib/questions";
 import { prisma } from "@/lib/prisma";
 import { findStudent } from "@/lib/student";
-import { cardClass, primaryButton, secondaryButton } from "@/lib/styles";
+import { cardClass, linkClass, primaryButton, secondaryButton } from "@/lib/styles";
 
 export const metadata = { title: "Simulado" };
 
@@ -45,7 +45,7 @@ export default async function ExamPage({
     <div className="mx-auto grid max-w-5xl items-start gap-4 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="space-y-4">
         <section className={cardClass}>
-          <p className="text-sm text-[#6d4aff]">Aplicação {exam.NumeroAplicacao}</p>
+          <p className="text-sm text-[#245c38]">Aplicação {exam.NumeroAplicacao}</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{exam.DescricaoSimulado}</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
             {ready} {ready === 1 ? "pergunta" : "perguntas"} de múltipla escolha. A ordem é sorteada quando a tentativa
@@ -80,12 +80,12 @@ export default async function ExamPage({
           {finished.length === 0 ? (
             <p className="mt-2 text-sm text-slate-600">Ainda não há tentativa concluída neste simulado.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-[#efeaff] text-sm">
+            <ul className="mt-3 divide-y divide-[#eef1ea] text-sm">
               {finished.map((attempt, index) => (
                 <li key={attempt.TentativaKey} className="flex items-center justify-between gap-3 py-3">
                   <Link
                     href={`/simulados/${exam.SimuladoKey}/tentativa/${attempt.TentativaKey}`}
-                    className="font-medium text-[#6d4aff]"
+                    className={linkClass}
                   >
                     Tentativa {finished.length - index}
                   </Link>
@@ -105,7 +105,7 @@ export default async function ExamPage({
         width={720}
         height={540}
         unoptimized
-        className="mx-auto h-auto w-full rounded-md bg-white p-6"
+        className="mx-auto h-auto w-full rounded-2xl bg-white p-6 shadow-[0_8px_28px_rgba(30,40,20,0.05)]"
       />
     </div>
   );

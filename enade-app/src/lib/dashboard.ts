@@ -52,11 +52,7 @@ export async function loadAdminDashboard() {
 		hits += value;
 		accumulate(axes, fact.Dim_Questao.EixoTematico, value);
 		accumulate(classes, fact.Dim_Aluno_Anonimo.TurmaGrupo, value);
-		accumulate(
-			exams,
-			`${fact.Dim_Simulado.NumeroAplicacao}. ${fact.Dim_Simulado.DescricaoSimulado}`,
-			value
-		);
+		accumulate(exams, `Aplic. ${fact.Dim_Simulado.NumeroAplicacao}`, value);
 		const code = fact.Dim_Questao.CodigoQuestao;
 		const question = questions.get(code) ?? {
 			code,
@@ -81,7 +77,9 @@ export async function loadAdminDashboard() {
 		hits,
 		byAxis: sortByRate([...axes.values()]),
 		byClass: sortByRate([...classes.values()]),
-		byExam: [...exams.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+		byExam: [...exams.values()].sort((a, b) =>
+			a.name.localeCompare(b.name, "pt-BR", { numeric: true })
+		),
 		byQuestion: [...questions.values()].sort(
 			(a, b) => rate(a.hits, a.total) - rate(b.hits, b.total) || a.code.localeCompare(b.code, "pt-BR")
 		),

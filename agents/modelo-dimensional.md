@@ -10,10 +10,14 @@ Estrela (não floco de neve): fato no centro, eixo e dificuldade **atributos** d
 | `Fato_Respostas` | `Acertou` 0/1 aditivo, `RespostaDada`, `TempoRespostaSegundos` |
 | `Dim_Tempo` | `TempoKey` sequencial, Data (YYYY-MM-DD), Ano, Mes, NomeMes, SemanaSemestre |
 | `Dim_Aluno_Anonimo` | `CodigoAlunoAnonimo`, `TurmaGrupo` — sem PII |
-| `Dim_Questao` | `EixoTematico` (16 oficiais), `NivelDificuldade` (Fácil/Médio/Difícil) |
+| `Dim_Questao` | `EixoTematico` (16 oficiais), `NivelDificuldade` (Fácil/Médio/Difícil), `Enunciado` |
 | `Dim_Simulado` | `CodigoSimulado`, `NumeroAplicacao`, `DescricaoSimulado` |
 
 Relacionamentos 1:\*, filtro unidirecional dimensão → fato.
+
+O simulado da aplicação usa `Alternativa` (uma correta por questão) e
+`Simulado_Questao` (quais questões entram em cada aplicação). Repetições do
+aluno ficam em `Tentativa` e não mudam o grão do fato.
 
 **Não armazenar taxa de acerto.** Medidas no Power BI Desktop: `Total Respostas`,
 `Total Acertos`, `Taxa de Acerto` (`DIVIDE`), `Alunos Participantes`

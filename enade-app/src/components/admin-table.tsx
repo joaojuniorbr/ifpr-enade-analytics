@@ -23,7 +23,7 @@ export function AdminTable({
 }) {
   if (rows.length === 0) return <p className="text-sm text-slate-600">Nenhum registro.</p>;
   return (
-    <div className="overflow-x-auto rounded-md bg-white shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+    <div className="overflow-x-auto rounded-2xl bg-white shadow-[0_8px_28px_rgba(30,40,20,0.05)]">
       <table className="w-full text-left text-sm">
         <thead className="text-xs text-slate-500">
           <tr>
@@ -45,7 +45,7 @@ export function AdminTable({
               ))}
               <td className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <Link href={row.href} className="text-sm font-medium text-[#6d4aff] hover:underline">
+                  <Link href={row.href} className="text-sm font-medium text-[#245c38] hover:underline">
                     Editar
                   </Link>
                   <DeleteButton

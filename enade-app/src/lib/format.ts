@@ -14,18 +14,15 @@ export function formatScore(score: NumericValue | number | null | undefined): st
   })}%`;
 }
 
+export function formatCount(value: number): string {
+  return value.toLocaleString("pt-BR");
+}
+
 export function formatRate(part: number, total: number): string {
   if (total <= 0) return "—";
   return `${((part / total) * 100).toLocaleString("pt-BR", {
     maximumFractionDigits: 1,
   })}%`;
-}
-
-export function toChartPoints(items: { name: string; hits: number; total: number }[]) {
-  return items.map((item) => ({
-    name: item.name.length > 32 ? `${item.name.slice(0, 30)}…` : item.name,
-    rate: item.total === 0 ? 0 : Math.round((item.hits / item.total) * 1000) / 10,
-  }));
 }
 
 export function summarize(text: string, limit = 140): string {

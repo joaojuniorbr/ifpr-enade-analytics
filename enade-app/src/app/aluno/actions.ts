@@ -15,7 +15,7 @@ export async function saveClassGroup(formData: FormData) {
   const user = await requireStudent();
   const parsed = classGroupSchema.safeParse({ classGroup: formData.get("classGroup") });
   if (!parsed.success) {
-    redirect(`/?error=${encodeURIComponent(zodMessage(parsed.error))}`);
+    redirect(`/primeiro-acesso?error=${encodeURIComponent(zodMessage(parsed.error))}`);
   }
 
   await createStudent(user, parsed.data.classGroup);

@@ -20,6 +20,23 @@ export function utcDate(key: string): Date {
   return new Date(`${key}T00:00:00.000Z`);
 }
 
+export function formatFullDate(date: Date): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: TIME_ZONE,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+export function formatDayMonth(date: Date): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: TIME_ZONE,
+    day: "2-digit",
+    month: "2-digit",
+  }).format(date);
+}
+
 export function formatDate(date: Date): string {
   const [year, month, day] = dateKey(date).split("-");
   return `${day}/${month}/${year}`;

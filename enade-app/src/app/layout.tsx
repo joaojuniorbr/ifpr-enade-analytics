@@ -23,13 +23,15 @@ export default async function RootLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
 	const pathname = (await headers()).get('x-pathname') ?? '';
-	const user = pathname === '/login' ? null : await getOptionalUser();
+	const bare =
+		pathname === '/login' || pathname.startsWith('/primeiro-acesso');
+	const user = bare ? null : await getOptionalUser();
 
 	if (!user) {
 		return (
 			<html lang='pt-BR'>
 				<body
-					className={`${geist.className} bg-[#ece8fb] text-slate-900 antialiased`}
+					className={`${geist.className} bg-[#eef1ea] text-slate-900 antialiased`}
 				>
 					<AntdProvider>{children}</AntdProvider>
 				</body>
@@ -39,7 +41,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang='pt-BR'>
-			<body className={`${geist.className} antialiased`}>
+			<body className={`${geist.className} bg-[#eef1ea] text-slate-900 antialiased`}>
 				<AntdProvider>
 					<Shell user={{ name: user.name, role: user.role }} pathname={pathname}>
 						{children}

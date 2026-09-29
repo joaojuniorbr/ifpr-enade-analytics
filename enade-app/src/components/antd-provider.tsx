@@ -11,8 +11,8 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
         locale={ptBR}
         theme={{
           token: {
-            colorPrimary: "#6d4aff",
-            borderRadius: 6,
+            colorPrimary: "#3c7a4b",
+            borderRadius: 10,
             fontFamily: "inherit",
           },
         }}

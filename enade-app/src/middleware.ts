@@ -11,7 +11,8 @@ function needsSession(pathname: string): boolean {
     pathname === "/" ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/simulados") ||
-    pathname.startsWith("/evolucao")
+    pathname.startsWith("/evolucao") ||
+    pathname.startsWith("/primeiro-acesso")
   );
 }
 

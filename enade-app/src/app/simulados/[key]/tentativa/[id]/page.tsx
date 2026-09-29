@@ -53,7 +53,7 @@ export default async function AttemptPage({
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-[#6d4aff]">{attempt.Dim_Simulado.DescricaoSimulado}</p>
+          <p className="text-sm text-[#245c38]">{attempt.Dim_Simulado.DescricaoSimulado}</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-950">
             {finished ? "Resultado da tentativa" : "Simulado em andamento"}
           </h1>
@@ -65,22 +65,14 @@ export default async function AttemptPage({
 
       {finished ? (
         <div className="space-y-4">
-          <section className="grid items-center gap-4 overflow-hidden rounded-md bg-[#6d4aff] p-6 text-white sm:grid-cols-[1fr_180px]">
+          <section className={cardClass}>
             <div>
-              <p className="text-sm text-white/75">Você acertou</p>
-              <p className="mt-1 text-4xl font-semibold">
+              <p className="text-sm text-slate-500">Você acertou</p>
+              <p className="mt-1 text-4xl font-semibold text-[#1e5c34]">
                 {attempt.Acertos}/{attempt.TotalQuestoes}
               </p>
-              <p className="mt-2 text-sm text-white/80">{formatRate(attempt.Acertos, attempt.TotalQuestoes)}</p>
+              <p className="mt-2 text-sm text-slate-600">{formatRate(attempt.Acertos, attempt.TotalQuestoes)}</p>
             </div>
-            <Image
-              src="/undraw-result.svg"
-              alt="Resultado, ilustração unDraw"
-              width={320}
-              height={240}
-              unoptimized
-              className="mx-auto h-auto w-full rounded-md bg-white/95 p-2"
-            />
           </section>
           {order.map((questionKey, index) => {
             const question = byKey.get(questionKey);
@@ -89,7 +81,7 @@ export default async function AttemptPage({
             const correct = question.Alternativas.find((alternative) => alternative.Correta === 1);
             return (
               <article key={questionKey} className={cardClass}>
-                <p className="text-sm font-medium text-[#6d4aff]">Pergunta {index + 1}</p>
+                <p className="text-sm font-medium text-[#245c38]">Pergunta {index + 1}</p>
                 <p className="mt-2 whitespace-pre-wrap text-slate-900">{question.Enunciado}</p>
                 <p className="mt-3 text-sm text-slate-700">
                   Sua resposta: <span className="font-medium">{item.LetraMarcada}</span>

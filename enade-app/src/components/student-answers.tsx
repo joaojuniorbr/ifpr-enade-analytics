@@ -64,11 +64,11 @@ export function StudentAnswers({
             key={student.id}
             type="button"
             onClick={() => setSelectedId(student.id)}
-            className="rounded-md bg-white p-5 text-left shadow-[0_10px_30px_rgba(90,70,180,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(90,70,180,0.12)]"
+            className="rounded-2xl bg-white p-5 text-left shadow-[0_8px_28px_rgba(30,40,20,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(30,40,20,0.08)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6d4aff]">Aluno anônimo</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-[#245c38]">Aluno anônimo</p>
                 <h2 className="mt-1 text-lg font-semibold text-slate-900">{student.code}</h2>
                 <p className="text-sm text-slate-500">{student.classGroup}</p>
               </div>
@@ -97,9 +97,9 @@ export function StudentAnswers({
             aria-labelledby="student-drawer-title"
             className="relative z-10 flex h-full w-full max-w-2xl flex-col bg-[#f7f4ff] shadow-2xl"
           >
-            <header className="flex items-start justify-between gap-4 border-b border-[#e4dcff] bg-white px-6 py-5">
+            <header className="flex items-start justify-between gap-4 border-b border-[#e3e6df] bg-white px-6 py-5">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6d4aff]">Detalhe do aluno</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-[#245c38]">Detalhe do aluno</p>
                 <h2 id="student-drawer-title" className="mt-1 text-xl font-semibold text-slate-900">
                   {selected.code}
                 </h2>
@@ -108,13 +108,13 @@ export function StudentAnswers({
               <button
                 type="button"
                 onClick={() => setSelectedId(null)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-[#f6f3ff]"
+                className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-[#f3f7f1]"
               >
                 Fechar
               </button>
             </header>
             <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-              <section className="rounded-md bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+              <section className="rounded-2xl bg-white p-5 shadow-[0_8px_28px_rgba(30,40,20,0.05)]">
                 <div className="flex items-end justify-between gap-3">
                   <p className="text-sm text-slate-500">Visão geral</p>
                   <p className="text-2xl font-semibold text-slate-900">
@@ -127,7 +127,7 @@ export function StudentAnswers({
                 </p>
               </section>
               {selected.exams.map((exam) => (
-                <section key={exam.id} className="rounded-md bg-white p-5 shadow-[0_10px_30px_rgba(90,70,180,0.06)]">
+                <section key={exam.id} className="rounded-2xl bg-white p-5 shadow-[0_8px_28px_rgba(30,40,20,0.05)]">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <h3 className="font-semibold text-slate-900">{exam.name}</h3>
                     <p className="text-sm text-slate-600">
@@ -157,7 +157,7 @@ export function StudentAnswers({
                             <td className="py-3 pr-3">{row.seconds}</td>
                             <td className="py-3">
                               <div className="flex flex-wrap items-center gap-3">
-                                <Link href={row.href} className="font-medium text-[#6d4aff] hover:underline">
+                                <Link href={row.href} className="font-medium text-[#245c38] hover:underline">
                                   Editar
                                 </Link>
                                 <DeleteButton
@@ -186,8 +186,8 @@ export function StudentAnswers({
 function RateBar({ hits, total }: { hits: number; total: number }) {
   const width = total <= 0 ? 0 : Math.round((hits / total) * 1000) / 10;
   return (
-    <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#efeaff]">
-      <div className="h-full rounded-full bg-[#6d4aff]" style={{ width: `${width}%` }} />
+    <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6e8e2]">
+      <div className="h-full rounded-full bg-[#5aa36a]" style={{ width: `${width}%` }} />
     </div>
   );
 }
