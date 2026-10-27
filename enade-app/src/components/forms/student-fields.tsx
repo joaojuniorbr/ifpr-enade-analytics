@@ -1,10 +1,13 @@
 import { saveStudent } from "@/app/admin/alunos/actions";
+import { TurmaSelect } from "@/components/turma-select";
 import { fieldClass, primaryButton } from "@/lib/styles";
 
 export function StudentFields({
   student,
+  turmas,
 }: {
   student?: { AlunoKey: number; CodigoAlunoAnonimo: string; TurmaGrupo: string };
+  turmas: { TurmaGrupo: string }[];
 }) {
   return (
     <form action={saveStudent} className="space-y-3">
@@ -22,14 +25,9 @@ export function StudentFields({
       </label>
       <label className="block text-sm text-slate-700">
         Turma
-        <input
-          name="classGroup"
-          required
-          maxLength={64}
-          defaultValue={student?.TurmaGrupo}
-          placeholder="Turma"
-          className={`${fieldClass} mt-1`}
-        />
+        <div className="mt-1">
+          <TurmaSelect turmas={turmas} defaultValue={student?.TurmaGrupo} />
+        </div>
       </label>
       <button type="submit" className={primaryButton}>
         {student ? "Salvar" : "Incluir"}

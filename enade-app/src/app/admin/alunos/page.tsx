@@ -6,6 +6,7 @@ import { FormDrawer } from "@/components/form-drawer";
 import { StudentFields } from "@/components/forms/student-fields";
 import { withForm } from "@/lib/forms";
 import { prisma } from "@/lib/prisma";
+import { listTurmas } from "@/lib/turma";
 import { primaryButton } from "@/lib/styles";
 
 export const metadata = { title: "Alunos anônimos" };
@@ -16,10 +17,13 @@ export default async function StudentsPage({
   searchParams: Promise<{ notice?: string; error?: string; form?: string }>;
 }) {
   const params = await searchParams;
-  const students = await prisma.dim_Aluno_Anonimo.findMany({
-    orderBy: { AlunoKey: "asc" },
-    include: { Dim_Turma: true },
-  });
+  const [students, turmas] = await Promise.all([
+    prisma.dim_Aluno_Anonimo.findMany({
+      orderBy: { AlunoKey: "asc" },
+      include: { Dim_Turma: true },
+    }),
+    listTurmas(),
+  ]);
   const creating = params.form === "novo";
   const editingKey = Number(params.form);
   const editing = students.find((student) => student.AlunoKey === editingKey);
@@ -61,7 +65,7 @@ export default async function StudentsPage({
       >
         <Messages error={params.error} />
         <div className="mt-4">
-          <StudentFields student={editingForForm} />
+          <StudentFields student={editingForForm} turmas={turmas} />
         </div>
       </FormDrawer>
     </div>

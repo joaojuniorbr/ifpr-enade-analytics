@@ -52,7 +52,7 @@ export async function loadAdminDashboard() {
 		hits += value;
 		accumulate(axes, fact.Dim_Questao_Eixo.EixoTematico, value);
 		accumulate(classes, fact.Dim_Turma.TurmaGrupo, value);
-		accumulate(exams, `Aplic. ${fact.Dim_Tempo.NumeroSimulado}`, value);
+		accumulate(exams, fact.Dim_Tempo.CodigoSimulado, value);
 		const code = fact.Dim_Questao_Eixo.CodigoQuestao;
 		const question = questions.get(code) ?? {
 			code,

@@ -2,9 +2,11 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { saveClassGroup } from "@/app/aluno/actions";
 import { Notice } from "@/components/notice";
+import { TurmaSelect } from "@/components/turma-select";
 import { requireStudent } from "@/lib/auth";
 import { findStudent } from "@/lib/student";
-import { fieldClass, primaryButton, wordmarkClass } from "@/lib/styles";
+import { listTurmas } from "@/lib/turma";
+import { primaryButton, wordmarkClass } from "@/lib/styles";
 
 export const metadata = { title: "Primeiro acesso" };
 
@@ -18,6 +20,7 @@ export default async function FirstAccess({
   if (student) redirect("/");
 
   const params = await searchParams;
+  const turmas = await listTurmas();
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[#eef1ea] px-6 py-10">
@@ -36,14 +39,15 @@ export default async function FirstAccess({
           ) : null}
           <label className="mt-6 block text-sm font-medium text-slate-800">
             Turma
-            <input
-              name="classGroup"
-              required
-              maxLength={64}
-              placeholder="Ex.: ADS 2026"
-              className={`${fieldClass} mt-2`}
-            />
+            <div className="mt-2">
+              <TurmaSelect turmas={turmas} />
+            </div>
           </label>
+          {turmas.length > 0 ? (
+            <p className="mt-2 text-xs text-slate-500">
+              Lista vinda do cadastro da coordenação ({turmas.length} grupos).
+            </p>
+          ) : null}
           <button type="submit" className={`${primaryButton} mt-6`}>
             Continuar
           </button>

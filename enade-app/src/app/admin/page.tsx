@@ -21,14 +21,14 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Acompanhamento do simulado</h1>
           <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-            A taxa é acertos divididos pelas respostas registradas nesta aplicação.
+            Agregado do fato analítico (todas as aplicações e turmas carregadas no banco).
           </p>
         </div>
         <Image src="/undraw-dados.svg" alt="" width={280} height={200} unoptimized className="hidden h-28 w-auto md:block" />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Metric label="Respostas" value={formatCount(dashboard.total)} detail="Registros nesta aplicação" />
+        <Metric label="Respostas" value={formatCount(dashboard.total)} detail="Linhas no fato analítico" />
         <Metric
           label="Acertos"
           value={formatCount(dashboard.hits)}

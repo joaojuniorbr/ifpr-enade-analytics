@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma";
 
+export async function listTurmas() {
+  return prisma.dim_Turma.findMany({
+    orderBy: { TurmaGrupo: "asc" },
+    select: { TurmaKey: true, TurmaGrupo: true },
+  });
+}
+
 export async function ensureTurmaKey(turmaGrupo: string): Promise<number> {
   const trimmed = turmaGrupo.trim();
   const existing = await prisma.dim_Turma.findUnique({

@@ -10,6 +10,7 @@
     "postinstall": "prisma generate",
     "db:generate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local ./node_modules/prisma/build/index.js generate",
     "db:deploy": "node --env-file-if-exists=.env --env-file-if-exists=.env.local ./node_modules/prisma/build/index.js migrate deploy",
+    "db:demo": "bash ../modelo-dimensional/recriar_banco_demo.sh",
     "db:push": "node --env-file-if-exists=.env --env-file-if-exists=.env.local ./node_modules/prisma/build/index.js db push"
   },
   "dependencies": {

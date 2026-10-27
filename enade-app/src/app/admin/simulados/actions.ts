@@ -126,6 +126,43 @@ export async function attachQuestion(formData: FormData) {
   redirect(`/admin/simulados/${examKey}?notice=saved`);
 }
 
+export async function attachAllReadyQuestions(formData: FormData) {
+  await requireAdmin();
+  const examKey = Number(formData.get("examKey"));
+  if (!Number.isInteger(examKey) || examKey <= 0) {
+    redirect("/admin/simulados?error=Simulado%20inv%C3%A1lido.");
+  }
+
+  const linked = await prisma.simulado_Questao.findMany({
+    where: { TempoKey: examKey },
+    select: { QuestaoEixoKey: true },
+  });
+  const linkedKeys = new Set(linked.map((row) => row.QuestaoEixoKey));
+  const candidates = await prisma.dim_Questao_Eixo.findMany({
+    include: { Alternativas: true },
+    orderBy: { QuestaoEixoKey: "asc" },
+  });
+  const toLink = candidates.filter((q) => !linkedKeys.has(q.QuestaoEixoKey) && isReadyQuestion(q));
+  if (toLink.length === 0) {
+    redirect(`/admin/simulados/${examKey}?error=${encodeURIComponent("Não há perguntas prontas para vincular.")}`);
+  }
+
+  try {
+    await prisma.simulado_Questao.createMany({
+      data: toLink.map((q) => ({ TempoKey: examKey, QuestaoEixoKey: q.QuestaoEixoKey })),
+      skipDuplicates: true,
+    });
+  } catch (error) {
+    const message = databaseMessage(error, "save");
+    if (message) redirect(`/admin/simulados/${examKey}?error=${encodeURIComponent(message)}`);
+    throw error;
+  }
+
+  revalidatePath(`/admin/simulados/${examKey}`);
+  revalidatePath("/");
+  redirect(`/admin/simulados/${examKey}?notice=saved`);
+}
+
 export async function detachQuestion(formData: FormData) {
   await requireAdmin();
   const [examKey, questionKey] = String(formData.get("id") ?? "")

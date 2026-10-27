@@ -1,6 +1,6 @@
 # ENADE Analytics — aplicação de provas
 
-Aplicação operacional para a coordenação aplicar simulados do ENADE. O login identifica o usuário. As notas ficam neste banco MySQL. Este app não grava no data warehouse (`modelo-dimensional/`) e não pede CPF.
+Aplicação operacional para a coordenação aplicar simulados do ENADE. O login identifica o usuário. Respostas ficam neste MySQL (mesmo esquema estrela do DW) e alimentam `Fato_Respostas` ao concluir tentativas. Não pede CPF.
 
 O simulado não vale nota e não substitui o ENADE oficial.
 
@@ -20,6 +20,7 @@ cd enade-app
 cp .env.example .env.local
 npm install
 npm run db:deploy
+npm run db:demo    # opcional: recarrega seed demo (6 turmas, 4 simulados)
 npm run dev
 ```
 
@@ -64,7 +65,7 @@ No login, se o e-mail estiver verificado e na lista, a sessão entra como `ADMIN
 
 ## Uso
 
-O app usa o **mesmo esquema estrela** do Guia Semana 7 (`Dim_Tempo` com simulado, `Dim_Questao_Eixo`, `Dim_Dificuldade`, `Dim_Turma`, `Fato_Respostas`, …). Rode `npm run db:deploy` para aplicar a migration `guia_semana_7`. CSVs para Power BI: [`../modelo-dimensional/powerbi/`](../modelo-dimensional/powerbi/). Ao concluir uma tentativa, o app grava também em `Fato_Respostas`.
+O app usa o **mesmo esquema estrela** do Guia Semana 7 (`Dim_Tempo` com simulado, `Dim_Questao_Eixo`, `Dim_Dificuldade`, `Dim_Turma`, `Fato_Respostas`, …). Rode `npm run db:deploy` para aplicar migrations. Para banco de teste populado (dashboard Power BI): `npm run db:demo` (equivale a `../modelo-dimensional/recriar_banco_demo.sh`). CSVs: [`../modelo-dimensional/powerbi/`](../modelo-dimensional/powerbi/). No **primeiro acesso**, o aluno escolhe a turma na lista `Dim_Turma` (cadastro da coordenação).
 
 - `/` — aluno: simulados disponíveis, com perguntas em ordem sorteada e novas tentativas
 - `/evolucao` — acertos de cada tentativa do aluno

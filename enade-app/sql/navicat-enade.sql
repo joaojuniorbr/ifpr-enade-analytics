@@ -4,7 +4,7 @@
 --
 -- As 32 perguntas são originais de treino, uma para cada objeto de conhecimento
 -- da Portaria Inep nº 171/2026, art. 6º, em dois níveis. Não são itens oficiais do ENADE.
--- Simulado 1 (SIM-PILOTO-01): questões ímpares, um eixo cada.
+-- Simulados 1–4: todas as 32 questões prontas (mesmo padrão do seed demo / Power BI).
 -- Simulado 2 (SIM-02): questões pares, o outro nível de cada eixo.
 -- Pode rodar de novo: enunciados, alternativas e vínculos são regravados.
 
@@ -308,40 +308,13 @@ INSERT INTO Alternativa (AlternativaKey, QuestaoEixoKey, Letra, Texto, Correta) 
 (159, 32, 'D', 'O e-mail é enviado só para a coordenação.', 0),
 (160, 32, 'E', 'Basta guardar o primeiro nome.', 0);
 
-DELETE FROM Simulado_Questao WHERE TempoKey IN (1, 2);
+DELETE FROM Simulado_Questao WHERE TempoKey IN (1, 2, 3, 4);
 
-INSERT INTO Simulado_Questao (TempoKey, QuestaoEixoKey) VALUES
-(1, 1),
-(2, 2),
-(1, 3),
-(2, 4),
-(1, 5),
-(2, 6),
-(1, 7),
-(2, 8),
-(1, 9),
-(2, 10),
-(1, 11),
-(2, 12),
-(1, 13),
-(2, 14),
-(1, 15),
-(2, 16),
-(1, 17),
-(2, 18),
-(1, 19),
-(2, 20),
-(1, 21),
-(2, 22),
-(1, 23),
-(2, 24),
-(1, 25),
-(2, 26),
-(1, 27),
-(2, 28),
-(1, 29),
-(2, 30),
-(1, 31),
-(2, 32);
+INSERT INTO Simulado_Questao (TempoKey, QuestaoEixoKey)
+SELECT t.TempoKey, q.QuestaoEixoKey
+FROM Dim_Tempo t
+CROSS JOIN Dim_Questao_Eixo q
+WHERE t.TempoKey IN (1, 2, 3, 4)
+  AND q.QuestaoEixoKey BETWEEN 1 AND 32;
 
 COMMIT;

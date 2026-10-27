@@ -70,7 +70,10 @@ export default async function Home() {
             return (
               <article key={exam.TempoKey} className={`${cardClass} flex flex-col`}>
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm text-slate-500">Aplicação {exam.NumeroSimulado}</p>
+                  <div>
+                    <p className="text-sm text-slate-500">Aplicação {exam.NumeroSimulado}</p>
+                    <p className="text-xs text-slate-400">{exam.CodigoSimulado}</p>
+                  </div>
                   <Image
                     src={cardImages[index % cardImages.length]}
                     alt=""

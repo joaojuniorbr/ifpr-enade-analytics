@@ -25,11 +25,7 @@ export async function syncFatoFromAttempt(
   );
 
   await prisma.fato_Respostas.deleteMany({
-    where: {
-      AlunoKey: alunoKey,
-      TempoKey: tempoKey,
-      QuestaoEixoKey: { in: questionKeys },
-    },
+    where: { AlunoKey: alunoKey, TempoKey: tempoKey },
   });
 
   const latest = await prisma.fato_Respostas.aggregate({ _max: { RespostaKey: true } });

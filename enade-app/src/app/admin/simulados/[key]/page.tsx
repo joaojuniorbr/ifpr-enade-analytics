@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { saveQuestion } from '@/app/admin/questoes/actions';
-import { attachQuestion, detachQuestion } from '@/app/admin/simulados/actions';
+import {
+	attachAllReadyQuestions,
+	attachQuestion,
+	detachQuestion,
+} from '@/app/admin/simulados/actions';
 import { Messages } from '@/components/admin-table';
 import { DeleteButton } from '@/components/delete-button';
 import { FormDrawer } from '@/components/form-drawer';
@@ -95,12 +99,20 @@ export default async function EditExamPage({
 						Nova pergunta
 					</Link>
 					{available.length > 0 ? (
-						<Link
-							href={withForm(base, query, 'vincular')}
-							className={secondaryButton}
-						>
-							Incluir pronta
-						</Link>
+						<>
+							<Link
+								href={withForm(base, query, 'vincular')}
+								className={secondaryButton}
+							>
+								Incluir pronta
+							</Link>
+							<form action={attachAllReadyQuestions}>
+								<input type='hidden' name='examKey' value={exam.TempoKey} />
+								<button type='submit' className={secondaryButton}>
+									Vincular todas ({available.length})
+								</button>
+							</form>
+						</>
 					) : null}
 				</div>
 			</div>
