@@ -64,7 +64,7 @@ No login, se o e-mail estiver verificado e na lista, a sessão entra como `ADMIN
 
 ## Uso
 
-O MySQL desta aplicação guarda o modelo estrela já carregado (`Dim_Questao`, `Dim_Aluno_Anonimo`, `Dim_Tempo`, `Dim_Simulado` e `Fato_Respostas`) e as tabelas da prova: `Alternativa`, `Simulado_Questao`, `Tentativa` e `Tentativa_Item`. O grão de `Fato_Respostas` continua uma resposta por aluno, questão e simulado. As tentativas do aluno, inclusive as repetições, ficam em `Tentativa`.
+O app usa o **mesmo esquema estrela** do Guia Semana 7 (`Dim_Tempo` com simulado, `Dim_Questao_Eixo`, `Dim_Dificuldade`, `Dim_Turma`, `Fato_Respostas`, …). Rode `npm run db:deploy` para aplicar a migration `guia_semana_7`. CSVs para Power BI: [`../modelo-dimensional/powerbi/`](../modelo-dimensional/powerbi/). Ao concluir uma tentativa, o app grava também em `Fato_Respostas`.
 
 - `/` — aluno: simulados disponíveis, com perguntas em ordem sorteada e novas tentativas
 - `/evolucao` — acertos de cada tentativa do aluno

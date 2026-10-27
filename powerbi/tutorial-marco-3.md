@@ -1,64 +1,61 @@
-# Tutorial Power BI Desktop — mineração do Marco 3
+# Tutorial Power BI Desktop — mineração (Marco 3) e dashboard (Marco 4)
 
-Passo a passo para montar no **Power BI Desktop** o que o Marco 3 pede: lacunas
-por eixo, concentradas vs distribuídas e evolução entre simulados. Nomes de menu
-em **português do Brasil**.
+Passo a passo para montar no **Power BI Desktop** o esquema do **Guia Semana 7**
+e as análises OLAP do briefing. Menus em **português do Brasil**.
 
-Valores de conferência do seed atual: taxa geral **64,1%**; Segurança da
-informação **27,1%**; SIM-PILOTO-01 **56,0%** → SIM-02 **72,1%**.
+Conferência do seed demo (`gerar_seed.py --demo`): taxa geral **67,4%**;
+Segurança da informação **34,0%**; SIM-PILOTO-01 **58,9%** → SIM-04 **72,0%**
+(4 aplicações; 36 alunos; 6 turmas).
 
 ---
 
 ## 1. Importar o esquema estrela
 
-1. Abra o Power BI Desktop (arquivo em branco).
+1. Abra o Power BI Desktop (arquivo em branco ou `powerbi/ENADE_Analytics.pbix`).
 2. **Página inicial → Obter dados → Texto/CSV**.
 3. Importe, um a um, os arquivos de `modelo-dimensional/powerbi/`:
+   - `Dim_Dificuldade.csv`
+   - `Dim_Turma.csv`
    - `Dim_Tempo.csv`
+   - `Dim_Questao_Eixo.csv`
    - `Dim_Aluno_Anonimo.csv`
-   - `Dim_Questao.csv`
-   - `Dim_Simulado.csv`
    - `Fato_Respostas.csv`
 4. Em cada importação, clique **Transformar dados** (não Carregar ainda).
 
-No Power Query, confira os tipos (coluna → **Tipo de dados**):
+Tipos no Power Query:
 
-| Tabela            | Coluna                                          | Tipo           |
-| ----------------- | ----------------------------------------------- | -------------- |
-| Dim_Tempo         | TempoKey, Ano, Mes, SemanaSemestre              | Número inteiro |
-| Dim_Tempo         | Data                                            | Data           |
-| Dim_Aluno_Anonimo | AlunoKey                                        | Número inteiro |
-| Dim_Questao       | QuestaoKey                                      | Número inteiro |
-| Dim_Simulado      | SimuladoKey, NumeroAplicacao                    | Número inteiro |
-| Fato_Respostas    | todas as `*Key`, Acertou, TempoRespostaSegundos | Número inteiro |
-| Fato_Respostas    | RespostaDada                                    | Texto          |
+| Tabela | Colunas inteiras |
+| --- | --- |
+| Todas as dimensões | `*Key` |
+| Dim_Tempo | `NumeroSimulado`, `Ano`, `Mes`, `SemanaSemestre` |
+| Dim_Tempo | `Data` → **Data** |
+| Fato_Respostas | `*Key`, `Acertou`, `TempoRespostaSegundos` |
+| Fato_Respostas | `RespostaDada` → **Texto** |
 
-`Acertou` tem de ser inteiro 0/1, **não** verdadeiro/falso.
+`Acertou` deve ser **Número inteiro** 0/1.
 
-**Página inicial → Fechar e aplicar.**
+**Fechar e aplicar.**
 
-## 2. Ligar o modelo (visão Modelo)
+## 2. Relacionamentos (visão Modelo)
 
-1. Ícone **Modelo** (lado esquerdo).
-2. Arraste as chaves da fato para as dimensões (ou **Gerenciar relações**):
+Fato no centro. **Gerenciar relações**:
 
-| De (fato)                   | Para (dimensão)             | Cardinalidade  | Filtro cruzado          |
-| --------------------------- | --------------------------- | -------------- | ----------------------- |
-| Fato_Respostas[TempoKey]    | Dim_Tempo[TempoKey]         | Muitos para um | Única (dimensão → fato) |
-| Fato_Respostas[AlunoKey]    | Dim_Aluno_Anonimo[AlunoKey] | Muitos para um | Única                   |
-| Fato_Respostas[QuestaoKey]  | Dim_Questao[QuestaoKey]     | Muitos para um | Única                   |
-| Fato_Respostas[SimuladoKey] | Dim_Simulado[SimuladoKey]   | Muitos para um | Única                   |
+| Fato | Dimensão | Cardinalidade |
+| --- | --- | --- |
+| `TempoKey` | `Dim_Tempo` | Muitos → um |
+| `QuestaoEixoKey` | `Dim_Questao_Eixo` | Muitos → um |
+| `DificuldadeKey` | `Dim_Dificuldade` | Muitos → um |
+| `TurmaKey` | `Dim_Turma` | Muitos → um |
+| `AlunoKey` | `Dim_Aluno_Anonimo` | Muitos → um |
 
-Fato no centro, quatro dimensões ao redor. **Arquivo → Captura de tela** desta
-visão: é a imagem da Seção 3 do Marco 2
-(`modelo-dimensional/diagrama-powerbi.png`).
+Filtro cruzado **Única** (dimensão → fato). Capture a tela para
+`modelo-dimensional/diagrama-powerbi.png` (Marco 2).
 
-Oculte as colunas `*Key` da fato no relatório (botão direito → **Ocultar no modo
-Relatório**), para a coordenação não ver chaves técnicas.
+Oculte colunas `*Key` da fato no relatório.
 
-## 3. Medidas DAX (Marco 2 + mineração)
+## 3. Medidas DAX
 
-**Modelagem → Nova medida.** Cole uma de cada vez na tabela `Fato_Respostas`.
+Crie na tabela `Fato_Respostas`:
 
 ```dax
 Total Respostas = COUNTROWS(Fato_Respostas)
@@ -76,16 +73,15 @@ Taxa de Acerto = DIVIDE([Total Acertos], [Total Respostas], 0)
 Alunos Participantes = DISTINCTCOUNT(Fato_Respostas[AlunoKey])
 ```
 
-Medidas extras do Marco 3:
-
 ```dax
 Taxa Geral =
 CALCULATE(
     [Taxa de Acerto],
-    ALL(Dim_Questao),
-    ALL(Dim_Aluno_Anonimo),
-    ALL(Dim_Simulado),
-    ALL(Dim_Tempo)
+    ALL(Dim_Questao_Eixo),
+    ALL(Dim_Dificuldade),
+    ALL(Dim_Turma),
+    ALL(Dim_Tempo),
+    ALL(Dim_Aluno_Anonimo)
 )
 ```
 
@@ -119,93 +115,57 @@ RETURN
     )
 ```
 
-Formate **Taxa de Acerto**, **Taxa Geral** e **Pct Alunos Abaixo 50%** como
-**Porcentagem** (1 casa decimal).
+Formate percentuais com 1 casa decimal.
 
-## 4. Página 1 — lacunas por eixo (pergunta 1)
+## 4. OLAP × perguntas do briefing (Guia Semana 7)
 
-Renomeie a página para `Lacunas por eixo`.
+| Pergunta | Operação OLAP | O que fazer no Desktop |
+| --- | --- | --- |
+| Pior desempenho por eixo | **Slice / roll-up** por `EixoTematico` | Barras horizontais com `[Taxa de Acerto]` |
+| Diferença entre turmas | **Dice / slice** por `TurmaGrupo` | Colunas por turma |
+| Lacunas concentradas? | **Drill-down** aluno anônimo (equipe) | Dispersão + clusters; coordenação vê só `% abaixo 50%` |
+| Evolução no semestre | **Drill-down/roll-up** em `Dim_Tempo` | Colunas por `CodigoSimulado` ou `NumeroSimulado` |
 
-1. **Cartão**: campo `[Taxa de Acerto]` — conferir **64,1%**.
-2. **Cartão**: `[Alunos Participantes]` — conferir **12**.
-3. **Gráfico de barras** (horizontal):
-   - Eixo Y: `Dim_Questao[EixoTematico]`
-   - Eixo X: `[Taxa de Acerto]`
-   - **… do visual → Classificar eixo → Taxa de Acerto → Crescente** (pior em
-     cima)
-4. **Tabela**:
-   - `EixoTematico`, `[Taxa de Acerto]`, `[Faixa da Lacuna]`,
-     `[Pct Alunos Abaixo 50%]`
-5. Formatação condicional na taxa: vermelho &lt; 50%, amarelo &lt; taxa geral,
-   verde no restante (**Ferramentas da tabela → Formatação condicional**).
+## 5. Página `Lacunas por eixo` (pergunta 1)
 
-Segurança da informação deve aparecer por último na barra (ou primeiro, se
-ordenado crescente no topo): **27,1%**, faixa Crítica, ~**75%** dos alunos
-abaixo de 50%.
+1. Cartões: `[Taxa de Acerto]` (~67,4%), `[Alunos Participantes]` (36), simulados (4).
+2. Barras: eixo Y `Dim_Questao_Eixo[EixoTematico]`, eixo X `[Taxa de Acerto]`, ordenar crescente.
+3. Tabela: eixo, taxa, `[Faixa da Lacuna]`, `[Pct Alunos Abaixo 50%]`.
 
-## 5. Página 2 — concentradas vs distribuídas (RF04)
+## 6. Página `Concentracao` (RF04 — só equipe)
 
-Renomeie para `Concentracao`.
+1. Tabela com `CodigoAlunoAnonimo`, `Dim_Turma[TurmaGrupo]`, `[Taxa de Acerto]`.
+2. Dispersão + **Análises → Localizar clusters (3)**.
+3. Colunas por `TurmaGrupo` (ex.: EAD ~53% vs Matutino ~75% no demo).
 
-**Não use essa página na apresentação para a coordenação com código de aluno
-visível.** Sirva só para a equipe concluir o RF04; no Marco 4 a visão pública
-fica só no % abaixo de 50% por eixo.
+**Ocultar** esta página na apresentação à coordenação.
 
-1. **Tabela da equipe** (depois oculte a página ou tire o código):
-   - `Dim_Aluno_Anonimo[CodigoAlunoAnonimo]`
-   - `Dim_Aluno_Anonimo[TurmaGrupo]`
-   - `[Taxa de Acerto]`
-   - Classificar pela taxa crescente. Amplitude esperada: ~53% a ~75%.
-2. **Gráfico de dispersão** (mineração visual):
-   - Eixo X: `[Taxa de Acerto]`
-   - Eixo Y: `[Total Respostas]`
-   - Legenda / detalhes: `CodigoAlunoAnonimo`
-   - Painel **Análises** (ícone de lupa) → **Localizar clusters** → **3**
-     clusters → **OK**.
-   - Os três grupos equivalem aos tercis baixo / médio / alto (~4 alunos cada).
-3. **Gráfico de colunas**:
-   - Eixo: `Dim_Aluno_Anonimo[TurmaGrupo]`
-   - Valor: `[Taxa de Acerto]`
-   - Esperado: TGI Noturno A ~**63,3%**, B ~**64,8%** (sem diferença material).
+## 7. Página `Evolucao` (RF05)
 
-Leitura para o relatório: se **Pct Alunos Abaixo 50%** no eixo Segurança está
-alto (~75%), a lacuna é **de turma**. Se a dispersão de alunos no geral é
-pequena (53–75%), **não** há um bolsão de poucos alunos puxando o curso.
+1. Colunas: `Dim_Tempo[CodigoSimulado]` × `[Taxa de Acerto]`.
+2. Barras agrupadas: eixo × simulado.
+3. Filtro opcional: `Dim_Dificuldade[Nivel]`.
 
-## 6. Página 3 — evolução (RF05)
+## 8. Marco 4 — storytelling para a coordenação
 
-Renomeie para `Evolucao`.
+Ordem sugerida das páginas públicas:
 
-1. **Gráfico de colunas agrupadas**:
-   - Eixo: `Dim_Simulado[CodigoSimulado]` (ou `NumeroAplicacao`)
-   - Valor: `[Taxa de Acerto]`
-   - Esperado: SIM-PILOTO-01 **56,0%**, SIM-02 **72,1%**.
-2. **Gráfico de barras agrupadas**:
-   - Eixo Y: `Dim_Questao[EixoTematico]`
-   - Legenda: `Dim_Simulado[CodigoSimulado]`
-   - Valor: `[Taxa de Acerto]`
-   - Conferir Segurança quase parada (~25% → ~29%) e Algoritmos/Governança com
-     salto grande.
+1. **Resumo** — cartões (taxa geral, simulados aplicados, eixos críticos).
+2. **Lacunas por eixo** — barras ordenadas (Segurança no topo).
+3. **Evolucao** — linha ou colunas por `CodigoSimulado` (4 aplicações).
+4. **Turmas** — comparar `TurmaGrupo` (no demo, EAD bem abaixo das presenciais).
 
-Filtro da página (opcional): segmentação de `NivelDificuldade`.
+Segmentações: `EixoTematico`, `TurmaGrupo`, `Nivel`, `CodigoSimulado`.
 
-## 7. Capturas para a apresentação e para o Marco 3
+Não exibir `CodigoAlunoAnonimo` nem `AlunoKey` (RF08).
 
-Tire print (ou **Inserir → Imagem** no Word/Google Doc):
+## 9. Atualizar dados
 
-1. Visão **Modelo** (estrela) — também serve ao Marco 2.
-2. Página Lacunas por eixo (barras ordenadas).
-3. Tabela eixo + faixa + % alunos &lt; 50%.
-4. Clusters no gráfico de dispersão (página da equipe).
-5. Colunas SIM-PILOTO-01 vs SIM-02.
+Após novo simulado: exportar CSVs (ou `python3 gerar_seed.py --demo` / ETL) →
+**Atualizar** no Desktop.
 
-Cole as conclusões em `marco-3.md` só depois de conferir os números na tela. Com
-dados reais do piloto, os percentuais mudam; o método é o mesmo.
+## 10. O que não fazer
 
-## 8. O que não fazer
-
-- Não criar `Dim_Eixo` (eixo já está em `Dim_Questao`).
-- Não colocar taxa de acerto como coluna calculada na fato.
-- Não deixar nome, e-mail ou RA no modelo.
-- Não mostrar `CodigoAlunoAnonimo` no dashboard da coordenação (RF08).
-- Não usar Python, R nem visual customizado pago.
+- Não persistir taxa de acerto na fato.
+- Não usar ferramentas pagas.
+- Não expor PII no relatório da coordenação.

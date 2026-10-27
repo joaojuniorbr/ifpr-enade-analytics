@@ -15,7 +15,7 @@ export default async function ExamsPage({
   searchParams: Promise<{ notice?: string; error?: string; form?: string }>;
 }) {
   const params = await searchParams;
-  const exams = await prisma.dim_Simulado.findMany({ orderBy: { NumeroAplicacao: "asc" } });
+  const exams = await prisma.dim_Tempo.findMany({ orderBy: { NumeroSimulado: "asc" } });
   const creating = params.form === "novo";
 
   return (
@@ -24,7 +24,7 @@ export default async function ExamsPage({
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Simulados</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Abra um simulado para incluir perguntas e as respostas de múltipla escolha.
+            Cada simulado é uma linha de Dim_Tempo (data + número da aplicação). Abra para incluir perguntas.
           </p>
         </div>
         <Link href={withForm("/admin/simulados", params, "novo")} className={primaryButton}>
@@ -36,12 +36,12 @@ export default async function ExamsPage({
         headers={["Chave", "Código", "Aplicação", "Descrição"]}
         deleteAction={deleteExam}
         rows={exams.map((exam) => ({
-          id: String(exam.SimuladoKey),
-          href: `/admin/simulados/${exam.SimuladoKey}`,
+          id: String(exam.TempoKey),
+          href: `/admin/simulados/${exam.TempoKey}`,
           columns: [
-            String(exam.SimuladoKey),
+            String(exam.TempoKey),
             exam.CodigoSimulado,
-            String(exam.NumeroAplicacao),
+            String(exam.NumeroSimulado),
             exam.DescricaoSimulado,
           ],
         }))}

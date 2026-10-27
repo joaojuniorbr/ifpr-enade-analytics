@@ -32,23 +32,26 @@ um fato armazenado**: é calculada na consulta
 
 ## 2. Esquema estrela implementado
 
-Tabelas e campos do modelo dimensional (Power BI / CSVs em
-`modelo-dimensional/powerbi/`).
+Modelo alinhado ao **Guia do Projeto — Unidade 3 (Semana 7)** e materializado em
+`modelo-dimensional/esquema-estrela.sql` e CSVs em `modelo-dimensional/powerbi/`.
 
-| **Tabela**              | **Campos**                                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Fato (`Fato_Respostas`) | `RespostaKey`; `TempoKey`; `AlunoKey`; `QuestaoKey`; `SimuladoKey`; `RespostaDada`; `Acertou`; `TempoRespostaSegundos` |
-| Dim_Tempo               | `TempoKey`; `Data`; `Ano`; `Mes`; `NomeMes`; `SemanaSemestre`                                                          |
-| Dim_Aluno_Anonimo       | `AlunoKey`; `CodigoAlunoAnonimo`; `TurmaGrupo`                                                                         |
-| Dim_Questao             | `QuestaoKey`; `CodigoQuestao`; `EixoTematico`; `NivelDificuldade`                                                      |
-| Dim_Simulado            | `SimuladoKey`; `CodigoSimulado`; `NumeroAplicacao`; `DescricaoSimulado`                                                |
+| **Tabela (guia)** | **Campos principais** |
+| --- | --- |
+| Fato (`Fato_Respostas`) | `Acertou`; `TempoRespostaSegundos`; `TempoKey`; `QuestaoEixoKey`; `DificuldadeKey`; `TurmaKey`; `AlunoKey` (drill-down interno); `RespostaDada` |
+| `Dim_Tempo` | `TempoKey`; `Data`; `NumeroSimulado`; `CodigoSimulado`; `SemanaSemestre`; `Ano`; `Mes`; `NomeMes` |
+| `Dim_Questao_Eixo` | `QuestaoEixoKey`; `CodigoQuestao`; `EixoTematico`; `Enunciado` |
+| `Dim_Dificuldade` | `DificuldadeKey`; `Nivel` (Fácil / Médio / Difícil) |
+| `Dim_Turma` | `TurmaKey`; `TurmaGrupo` (sem nome, CPF ou e-mail) |
+| `Dim_Aluno_Anonimo` | `AlunoKey`; `CodigoAlunoAnonimo`; `TurmaKey` — uso interno da equipe (RF04) |
 
-Relacionamentos: cada dimensão se liga à fato pela chave substituta (`TempoKey`,
-`AlunoKey`, `QuestaoKey`, `SimuladoKey`). Cardinalidade **1:\***, filtro
-**unidirecional** da dimensão para a fato.
+Equivalência de nomes do guia: `id_tempo` → `TempoKey`; `id_questao_eixo` →
+`QuestaoEixoKey`; `id_dificuldade` → `DificuldadeKey`; `id_turma` → `TurmaKey`.
 
-`NivelDificuldade`: Fácil, Médio ou Difícil. `EixoTematico`: um dos 16 objetos
-de conhecimento do Art. 6º da Portaria Inep nº 171/2026 (lista no Anexo B).
+Relacionamentos **1:\***, filtro **unidirecional** dimensão → fato. Operações
+OLAP por pergunta do briefing: **Anexo D**.
+
+`EixoTematico`: um dos 16 objetos do Art. 6º da Portaria Inep nº 171/2026
+(Anexo B).
 
 ## 3. Diagrama do esquema estrela
 
@@ -63,17 +66,18 @@ Diagrama conceitual equivalente, para conferência enquanto a captura não exist
 ```mermaid
 erDiagram
     Dim_Tempo ||--o{ Fato_Respostas : TempoKey
+    Dim_Questao_Eixo ||--o{ Fato_Respostas : QuestaoEixoKey
+    Dim_Dificuldade ||--o{ Fato_Respostas : DificuldadeKey
+    Dim_Turma ||--o{ Fato_Respostas : TurmaKey
     Dim_Aluno_Anonimo ||--o{ Fato_Respostas : AlunoKey
-    Dim_Questao ||--o{ Fato_Respostas : QuestaoKey
-    Dim_Simulado ||--o{ Fato_Respostas : SimuladoKey
 
     Fato_Respostas {
         int RespostaKey PK
         int TempoKey FK
+        int QuestaoEixoKey FK
+        int DificuldadeKey FK
+        int TurmaKey FK
         int AlunoKey FK
-        int QuestaoKey FK
-        int SimuladoKey FK
-        string RespostaDada
         int Acertou
         int TempoRespostaSegundos
     }
@@ -81,30 +85,25 @@ erDiagram
     Dim_Tempo {
         int TempoKey PK
         date Data
-        int Ano
-        int Mes
-        string NomeMes
+        int NumeroSimulado
+        string CodigoSimulado
         int SemanaSemestre
     }
 
-    Dim_Aluno_Anonimo {
-        int AlunoKey PK
-        string CodigoAlunoAnonimo
-        string TurmaGrupo
-    }
-
-    Dim_Questao {
-        int QuestaoKey PK
-        string CodigoQuestao
+    Dim_Questao_Eixo {
+        int QuestaoEixoKey PK
         string EixoTematico
-        string NivelDificuldade
+        string CodigoQuestao
     }
 
-    Dim_Simulado {
-        int SimuladoKey PK
-        string CodigoSimulado
-        int NumeroAplicacao
-        string DescricaoSimulado
+    Dim_Dificuldade {
+        int DificuldadeKey PK
+        string Nivel
+    }
+
+    Dim_Turma {
+        int TurmaKey PK
+        string TurmaGrupo
     }
 ```
 
@@ -115,8 +114,9 @@ erDiagram
 | Fato_Respostas    | RespostaKey           | Inteiro (PK)  | Chave técnica única de cada resposta registrada.                                      |
 | Fato_Respostas    | TempoKey              | Inteiro (FK)  | Relaciona a resposta à Dim_Tempo.                                                     |
 | Fato_Respostas    | AlunoKey              | Inteiro (FK)  | Relaciona a resposta ao aluno anonimizado.                                            |
-| Fato_Respostas    | QuestaoKey            | Inteiro (FK)  | Relaciona a resposta à questão respondida.                                            |
-| Fato_Respostas    | SimuladoKey           | Inteiro (FK)  | Relaciona a resposta à aplicação do simulado.                                         |
+| Fato_Respostas    | QuestaoEixoKey        | Inteiro (FK)  | Relaciona a resposta à questão / eixo temático.                                       |
+| Fato_Respostas    | DificuldadeKey        | Inteiro (FK)  | Nível da questão respondida (snowflake do guia).                                      |
+| Fato_Respostas    | TurmaKey              | Inteiro (FK)  | Turma/grupo agregado (sem PII).                                                       |
 | Fato_Respostas    | RespostaDada          | Texto         | Alternativa/resposta registrada pelo participante.                                    |
 | Fato_Respostas    | Acertou               | Inteiro (0/1) | Contador aditivo: 1 para resposta correta e 0 para incorreta.                         |
 | Fato_Respostas    | TempoRespostaSegundos | Inteiro       | Tempo gasto na resposta, em segundos inteiros (sem decimal).                           |
@@ -128,15 +128,18 @@ erDiagram
 | Dim_Tempo         | SemanaSemestre        | Inteiro       | Semana do semestre, usada para acompanhar evolução temporal.                          |
 | Dim_Aluno_Anonimo | AlunoKey              | Inteiro (PK)  | Chave substituta do participante no DW.                                               |
 | Dim_Aluno_Anonimo | CodigoAlunoAnonimo    | Texto         | Código sem identificação direta (ex.: `Aluno_014`).                                   |
-| Dim_Aluno_Anonimo | TurmaGrupo            | Texto         | Turma ou grupo de análise, sem nome nominal.                                          |
-| Dim_Questao       | QuestaoKey            | Inteiro (PK)  | Chave substituta da questão.                                                          |
-| Dim_Questao       | CodigoQuestao         | Texto         | Identificador interno da questão do banco de simulados.                               |
-| Dim_Questao       | EixoTematico          | Texto         | Objeto de conhecimento do componente específico (Portaria Inep nº 171/2026, Art. 6º). |
-| Dim_Questao       | NivelDificuldade      | Texto         | Classificação da equipe: Fácil, Médio ou Difícil.                                     |
-| Dim_Simulado      | SimuladoKey           | Inteiro (PK)  | Chave substituta da aplicação do simulado.                                            |
-| Dim_Simulado      | CodigoSimulado        | Texto         | Código ou nome curto do simulado.                                                     |
-| Dim_Simulado      | NumeroAplicacao       | Inteiro       | Ordem da aplicação ao longo do semestre.                                              |
-| Dim_Simulado      | DescricaoSimulado     | Texto         | Descrição da aplicação do simulado.                                                   |
+| Dim_Turma         | TurmaKey              | Inteiro (PK)  | Chave da turma/grupo.                                                                 |
+| Dim_Turma         | TurmaGrupo            | Texto         | Nome do grupo (ex.: TGI Noturno A), sem identificar estudante.                        |
+| Dim_Questao_Eixo  | QuestaoEixoKey        | Inteiro (PK)  | Chave substituta da questão.                                                          |
+| Dim_Questao_Eixo  | CodigoQuestao         | Texto         | Identificador interno da questão.                                                     |
+| Dim_Questao_Eixo  | EixoTematico          | Texto         | Objeto de conhecimento (Portaria Inep nº 171/2026, Art. 6º).                          |
+| Dim_Questao_Eixo  | Enunciado             | Texto         | Texto da questão (opcional no guia).                                                  |
+| Dim_Dificuldade   | DificuldadeKey        | Inteiro (PK)  | Chave do nível de dificuldade.                                                        |
+| Dim_Dificuldade   | Nivel                 | Texto         | Fácil, Médio ou Difícil.                                                              |
+| Dim_Tempo         | NumeroSimulado        | Inteiro       | Número da aplicação (simulado nº do guia).                                             |
+| Dim_Tempo         | CodigoSimulado        | Texto         | Código do simulado (ex.: SIM-PILOTO-01).                                              |
+| Dim_Tempo         | DescricaoSimulado     | Texto         | Descrição da aplicação.                                                               |
+| Dim_Aluno_Anonimo | TurmaKey              | Inteiro (FK)  | Liga o participante anonimizado à `Dim_Turma`.                                        |
 | Medida            | Total Respostas       | DAX           | `COUNTROWS(Fato_Respostas)`                                                           |
 | Medida            | Total Acertos         | DAX           | `SUM(Fato_Respostas[Acertou])`                                                        |
 | Medida            | Taxa de Acerto        | DAX           | `DIVIDE([Total Acertos], [Total Respostas], 0)`                                       |
@@ -175,12 +178,12 @@ do termo está em [termo-lgpd.md](./termo-lgpd.md). O seed em
 
 | **ID do requisito** | **Como este modelo atende ao requisito**                                                                                                                       |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RF01                | `Dim_Questao` armazena `EixoTematico` e `NivelDificuldade`, permitindo classificar e filtrar as questões do simulado.                                          |
-| RF02                | O fato `Acertou` (0/1), associado a `Dim_Questao`, alimenta a medida `Taxa de Acerto` (desempenho médio por eixo).                                             |
-| RF03                | `Dim_Aluno_Anonimo.TurmaGrupo` permite comparar desempenho entre turmas ou grupos, sem identificar estudantes.                                                 |
+| RF01                | `Dim_Questao_Eixo` e `Dim_Dificuldade` classificam questões por eixo e nível.                                                                                    |
+| RF02                | O fato `Acertou` (0/1), com `Dim_Questao_Eixo`, alimenta `Taxa de Acerto` por eixo.                                                                              |
+| RF03                | `Dim_Turma.TurmaGrupo` permite comparar turmas sem identificar estudantes.                                                                                     |
 | RF04                | `CodigoAlunoAnonimo` + `DISTINCTCOUNT` de `AlunoKey` permitem ver se as lacunas estão concentradas ou distribuídas, sem nome nominal. Detalhamento no Marco 3. |
-| RF05                | `Dim_Tempo` e `Dim_Simulado` (`NumeroAplicacao`) permitem comparar aplicações e acompanhar a evolução no semestre.                                             |
-| RF06                | `Fato_Respostas` registra cada resposta ligada a eixo (`Dim_Questao`) e turma (`Dim_Aluno_Anonimo`), no grão da Seção 1.                                       |
+| RF05                | `Dim_Tempo` (`NumeroSimulado`, `CodigoSimulado`) acompanha evolução entre aplicações.                                                                          |
+| RF06                | `Fato_Respostas` registra cada resposta com eixo, dificuldade e turma no grão da Seção 1.                                                                      |
 | RF08                | O esquema não expõe indivíduo identificável; o dashboard consome apenas agregações por turma/eixo.                                                             |
 | RNF01               | Apenas `CodigoAlunoAnonimo`; não há nome, CPF, e-mail ou identificador direto nas dimensões analíticas.                                                        |
 | RNF02               | A inclusão no dataset exige TCLE assinado; o checklist da Seção 6 registra a validação na coleta.                                                              |
@@ -197,7 +200,7 @@ entrada.
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1. Processo de negócio  | Avaliação do desempenho dos concluintes nos simulados preparatórios para o ENADE 2026 (prova em 29/11/2026), por eixo temático, turma/grupo, simulado e período. |
 | 2. Granularidade (grão) | 1 resposta de 1 aluno anônimo a 1 questão em 1 tentativa/aplicação de simulado.                                                                                  |
-| 3. Dimensões            | `Dim_Tempo`; `Dim_Aluno_Anonimo`; `Dim_Questao`; `Dim_Simulado`.                                                                                                 |
+| 3. Dimensões            | `Dim_Tempo`; `Dim_Questao_Eixo`; `Dim_Dificuldade`; `Dim_Turma`; `Dim_Aluno_Anonimo` (interno).                                                                  |
 | 4. Fatos                | `Acertou` (0/1), `RespostaDada` e `TempoRespostaSegundos`. Taxa de acerto só na consulta.                                                                        |
 
 ## Anexo B — Eixos do componente específico (Portaria Inep nº 171/2026, Art. 6º)
@@ -233,14 +236,27 @@ Ferramentas gratuitas apenas (RNF03): Microsoft Forms, planilhas e Power BI
 Desktop.
 
 1. **Extração** — banco de questões (eixo e dificuldade) em planilha; respostas
-   via Forms. Seed de desenvolvimento: CSVs em `modelo-dimensional/powerbi/` (12
-   alunos anônimos, 32 questões, 2 aplicações, 768 respostas).
+   via Forms. Seed de desenvolvimento: CSVs em `modelo-dimensional/powerbi/`
+   (`python3 gerar_seed.py --demo`: 36 alunos, 6 turmas, 32 questões, 4
+   simulados, 4.608 respostas). Perfil básico (2 turmas / 768 respostas):
+   `gerar_seed.py` sem flags.
 2. **Transformação** — TCLE como condição de inclusão (RNF02); substituir
    identificador original por `CodigoAlunoAnonimo`; gerar chaves `*Key`;
    calcular `Acertou` (0/1) pelo gabarito; montar `Dim_Tempo` pela data.
 3. **Carga** — Power BI Desktop: Obter dados → pasta
-   `modelo-dimensional/powerbi/`; relacionamentos 1:\*; medidas da Seção 5.
+   `modelo-dimensional/powerbi/` (`Dim_Dificuldade`, `Dim_Turma`, `Dim_Tempo`,
+   `Dim_Questao_Eixo`, `Dim_Aluno_Anonimo`, `Fato_Respostas`); relacionamentos
+   1:\*; medidas da Seção 5. Tutorial: [`powerbi/tutorial-marco-3.md`](./powerbi/tutorial-marco-3.md).
 
 Arquivos: [`esquema-estrela.sql`](./modelo-dimensional/esquema-estrela.sql) ·
 [`esquema-estrela.dbml`](./modelo-dimensional/esquema-estrela.dbml) ·
 [`gerar_seed.py`](./modelo-dimensional/gerar_seed.py)
+
+## Anexo D — OLAP e perguntas da coordenação (Guia Semana 7)
+
+| **Pergunta da coordenação** | **Operação OLAP** | **Interpretação no ENADE Analytics** |
+| --- | --- | --- |
+| Quais eixos têm o pior desempenho médio? | **Slice / roll-up** por eixo | Barras com `[Taxa de Acerto]` por `EixoTematico`; eixos abaixo de 50% = lacuna crítica. |
+| Diferença entre turmas ou grupos? | **Dice / slice** por turma | Colunas com `Dim_Turma[TurmaGrupo]`; diferença &lt; 2 pp = decisão pode ignorar turma. |
+| Lacunas concentradas em poucos estudantes? | **Drill-down** aluno anônimo (interno) | Equipe usa `CodigoAlunoAnonimo` + clusters; **dashboard da coordenação** mostra só faixas / `% abaixo 50%` (RF08). |
+| Desempenho melhora ao longo do semestre? | **Drill-down / roll-up** em `Dim_Tempo` | Comparar `CodigoSimulado` ou `NumeroSimulado`; olhar eixos que não evoluem apesar da média subir. |

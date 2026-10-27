@@ -1,58 +1,52 @@
 import { AXES, LEVELS } from "@/lib/axes";
-import { LETTERS } from "@/lib/validation";
-import { fieldClass, primaryButton } from "@/lib/styles";
-
-type AlternativeValue = { Letra: string; Texto: string; Correta: number };
+import { fieldClass } from "@/lib/styles";
 
 export function QuestionFields({
   question,
-  alternatives = [],
+  alternatives,
   simuladoKey,
 }: {
   question?: {
-    QuestaoKey: number;
+    QuestaoEixoKey: number;
     CodigoQuestao: string;
     EixoTematico: string;
-    NivelDificuldade: string;
     Enunciado: string | null;
+    Dim_Dificuldade?: { Nivel: string };
+    DificuldadeKey?: number;
   };
-  alternatives?: AlternativeValue[];
+  alternatives?: { Letra: string; Texto: string; Correta: number }[];
   simuladoKey?: number;
 }) {
-  const byLetter = new Map(alternatives.map((item) => [item.Letra, item]));
-  const marked = alternatives.find((item) => item.Correta === 1)?.Letra ?? "A";
+  const levelDefault =
+    question?.Dim_Dificuldade?.Nivel ??
+    (question?.DificuldadeKey === 1 ? "Fácil" : question?.DificuldadeKey === 3 ? "Difícil" : "Médio");
 
   return (
     <>
-      {question ? <input type="hidden" name="questionKey" value={question.QuestaoKey} /> : null}
+      {question ? <input type="hidden" name="questionKey" value={question.QuestaoEixoKey} /> : null}
       {simuladoKey ? <input type="hidden" name="simuladoKey" value={simuladoKey} /> : null}
       <label className="block text-sm text-slate-700">
         Código
-        <input
-          name="code"
-          required
-          maxLength={32}
-          defaultValue={question?.CodigoQuestao}
-          placeholder="Código"
-          className={`${fieldClass} mt-1`}
-        />
+        <input name="code" required maxLength={32} defaultValue={question?.CodigoQuestao} placeholder="Código" className={`${fieldClass} mt-1`} />
       </label>
       <label className="block text-sm text-slate-700">
         Eixo
-        <select name="axis" required defaultValue={question?.EixoTematico ?? ""} className={`${fieldClass} mt-1`}>
-          <option value="" disabled>
-            Eixo
-          </option>
+        <select name="axis" required defaultValue={question?.EixoTematico} className={`${fieldClass} mt-1`}>
+          <option value="">Selecione</option>
           {AXES.map((axis) => (
-            <option key={axis}>{axis}</option>
+            <option key={axis} value={axis}>
+              {axis}
+            </option>
           ))}
         </select>
       </label>
       <label className="block text-sm text-slate-700">
         Dificuldade
-        <select name="level" required defaultValue={question?.NivelDificuldade ?? "Médio"} className={`${fieldClass} mt-1`}>
+        <select name="level" required defaultValue={levelDefault} className={`${fieldClass} mt-1`}>
           {LEVELS.map((level) => (
-            <option key={level}>{level}</option>
+            <option key={level} value={level}>
+              {level}
+            </option>
           ))}
         </select>
       </label>
@@ -62,34 +56,31 @@ export function QuestionFields({
           name="statement"
           required
           maxLength={4000}
-          rows={5}
+          rows={4}
           defaultValue={question?.Enunciado ?? ""}
-          placeholder="Texto da pergunta"
+          placeholder="Enunciado"
           className={`${fieldClass} mt-1`}
         />
       </label>
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-medium text-slate-800">Respostas</legend>
-        <p className="text-sm text-slate-500">Preencha pelo menos duas. Marque a única correta.</p>
-        {LETTERS.map((letter) => (
-          <div key={letter} className="grid grid-cols-[auto_1fr] items-center gap-3">
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-              <input type="radio" name="correctLetter" value={letter} defaultChecked={marked === letter} required />
-              {letter}
+      <fieldset className="space-y-2">
+        <legend className="text-sm text-slate-700">Respostas (marque a correta)</legend>
+        {(["A", "B", "C", "D", "E"] as const).map((letter) => {
+          const alt = alternatives?.find((item) => item.Letra === letter);
+          return (
+            <label key={letter} className="flex items-start gap-2 text-sm text-slate-700">
+              <input type="radio" name="correctLetter" value={letter} defaultChecked={alt?.Correta === 1} className="mt-1" />
+              <span className="w-6 font-medium">{letter}</span>
+              <input
+                name={`alt-${letter}`}
+                maxLength={1000}
+                defaultValue={alt?.Texto ?? ""}
+                placeholder={`Texto da alternativa ${letter}`}
+                className={`${fieldClass} flex-1`}
+              />
             </label>
-            <input
-              name={`alt-${letter}`}
-              maxLength={1000}
-              defaultValue={byLetter.get(letter)?.Texto ?? ""}
-              placeholder={`Resposta ${letter}`}
-              className={fieldClass}
-            />
-          </div>
-        ))}
+          );
+        })}
       </fieldset>
-      <button type="submit" className={primaryButton}>
-        {question ? "Salvar" : "Incluir pergunta"}
-      </button>
     </>
   );
 }

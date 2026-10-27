@@ -31,20 +31,20 @@ export default async function EditExamPage({
 	const { key: keyParam } = await params;
 	const key = Number(keyParam);
 	if (!Number.isInteger(key)) notFound();
-	const exam = await prisma.dim_Simulado.findUnique({
-		where: { SimuladoKey: key },
+	const exam = await prisma.dim_Tempo.findUnique({
+		where: { TempoKey: key },
 		include: {
 			Simulado_Questoes: {
 				include: {
-					Dim_Questao: {
+					Dim_Questao_Eixo: {
 						include: { Alternativas: { orderBy: { Letra: 'asc' } } },
 					},
 				},
-				orderBy: { QuestaoKey: 'asc' },
+				orderBy: { QuestaoEixoKey: 'asc' },
 			},
 			Tentativas: {
 				where: { FinalizadaEm: { not: null } },
-				include: { Dim_Aluno_Anonimo: true },
+				include: { Dim_Aluno_Anonimo: { include: { Dim_Turma: true } } },
 				orderBy: { FinalizadaEm: 'desc' },
 				take: 20,
 			},
@@ -52,18 +52,18 @@ export default async function EditExamPage({
 	});
 	if (!exam) notFound();
 	const query = await searchParams;
-	const linked = new Set(exam.Simulado_Questoes.map((item) => item.QuestaoKey));
+	const linked = new Set(exam.Simulado_Questoes.map((item) => item.QuestaoEixoKey));
 	const available = (
-		await prisma.dim_Questao.findMany({
-			where: { QuestaoKey: { notIn: [...linked] } },
+		await prisma.dim_Questao_Eixo.findMany({
+			where: { QuestaoEixoKey: { notIn: [...linked] } },
 			include: { Alternativas: true },
 			orderBy: { CodigoQuestao: 'asc' },
 		})
 	).filter(isReadyQuestion);
 	const readyCount = exam.Simulado_Questoes.filter((item) =>
-		isReadyQuestion(item.Dim_Questao)
+		isReadyQuestion(item.Dim_Questao_Eixo)
 	).length;
-	const base = `/admin/simulados/${exam.SimuladoKey}`;
+	const base = `/admin/simulados/${exam.TempoKey}`;
 	const form = query.form;
 	const drawerOpen =
 		form === 'dados' || form === 'pergunta' || form === 'vincular';
@@ -119,10 +119,10 @@ export default async function EditExamPage({
 					</p>
 				) : (
 					exam.Simulado_Questoes.map((item) => {
-						const question = item.Dim_Questao;
+						const question = item.Dim_Questao_Eixo;
 						const ready = isReadyQuestion(question);
 						return (
-							<article key={question.QuestaoKey} className={cardClass}>
+							<article key={question.QuestaoEixoKey} className={cardClass}>
 								<div className='flex flex-wrap items-start justify-between gap-3'>
 									<div>
 										<p className='text-xs font-medium uppercase tracking-wide text-[#245c38]'>
@@ -133,7 +133,7 @@ export default async function EditExamPage({
 										</h3>
 									</div>
 									<DeleteButton
-										id={`${exam.SimuladoKey}:${question.QuestaoKey}`}
+										id={`${exam.TempoKey}:${question.QuestaoEixoKey}`}
 										action={detachQuestion}
 										label='Tirar'
 										message='Tirar esta pergunta do simulado?'
@@ -162,7 +162,7 @@ export default async function EditExamPage({
 										: 'Incompleta'}
 									{' · '}
 									<Link
-										href={`/admin/questoes?form=${question.QuestaoKey}`}
+										href={`/admin/questoes?form=${question.QuestaoEixoKey}`}
 										className='font-medium text-[#245c38]'
 									>
 										Editar pergunta
@@ -191,7 +191,7 @@ export default async function EditExamPage({
 			>
 				<Messages error={query.error} />
 				<form action={saveQuestion} className='mt-4 space-y-3'>
-					<QuestionFields simuladoKey={exam.SimuladoKey} />
+					<QuestionFields simuladoKey={exam.TempoKey} />
 				</form>
 			</FormDrawer>
 			<FormDrawer
@@ -201,7 +201,7 @@ export default async function EditExamPage({
 			>
 				<Messages error={query.error} />
 				<form action={attachQuestion} className='mt-4 space-y-3'>
-					<input type='hidden' name='examKey' value={exam.SimuladoKey} />
+					<input type='hidden' name='examKey' value={exam.TempoKey} />
 					<label className='block text-sm text-slate-700'>
 						Pergunta
 						<select
@@ -214,7 +214,7 @@ export default async function EditExamPage({
 								Escolha
 							</option>
 							{available.map((question) => (
-								<option key={question.QuestaoKey} value={question.QuestaoKey}>
+								<option key={question.QuestaoEixoKey} value={question.QuestaoEixoKey}>
 									{question.CodigoQuestao} · {question.EixoTematico}
 								</option>
 							))}
@@ -245,7 +245,7 @@ export default async function EditExamPage({
 									{attempt.Dim_Aluno_Anonimo.CodigoAlunoAnonimo}
 									<span className='text-slate-500'>
 										{' '}
-										· {attempt.Dim_Aluno_Anonimo.TurmaGrupo}
+										· {attempt.Dim_Aluno_Anonimo.Dim_Turma.TurmaGrupo}
 									</span>
 								</span>
 								<span className='text-slate-600'>

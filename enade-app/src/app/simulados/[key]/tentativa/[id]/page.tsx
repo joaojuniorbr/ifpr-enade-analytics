@@ -32,20 +32,20 @@ export default async function AttemptPage({
   const attempt = await prisma.tentativa.findUnique({
     where: { TentativaKey: attemptKey },
     include: {
-      Dim_Simulado: true,
+      Dim_Tempo: true,
       Itens: true,
     },
   });
-  if (!attempt || attempt.SimuladoKey !== examKey || attempt.AlunoKey !== student.AlunoKey) notFound();
+  if (!attempt || attempt.TempoKey !== examKey || attempt.AlunoKey !== student.AlunoKey) notFound();
 
   const order = attempt.OrdemQuestoes.split(",")
     .map(Number)
     .filter((key) => Number.isInteger(key) && key > 0);
-  const questions = await prisma.dim_Questao.findMany({
-    where: { QuestaoKey: { in: order } },
+  const questions = await prisma.dim_Questao_Eixo.findMany({
+    where: { QuestaoEixoKey: { in: order } },
     include: { Alternativas: { orderBy: { Letra: "asc" } } },
   });
-  const byKey = new Map(questions.map((question) => [question.QuestaoKey, question]));
+  const byKey = new Map(questions.map((question) => [question.QuestaoEixoKey, question]));
   const query = await searchParams;
   const finished = Boolean(attempt.FinalizadaEm);
 
@@ -53,7 +53,7 @@ export default async function AttemptPage({
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-[#245c38]">{attempt.Dim_Simulado.DescricaoSimulado}</p>
+          <p className="text-sm text-[#245c38]">{attempt.Dim_Tempo.DescricaoSimulado}</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-950">
             {finished ? "Resultado da tentativa" : "Simulado em andamento"}
           </h1>
@@ -76,7 +76,7 @@ export default async function AttemptPage({
           </section>
           {order.map((questionKey, index) => {
             const question = byKey.get(questionKey);
-            const item = attempt.Itens.find((answer) => answer.QuestaoKey === questionKey);
+            const item = attempt.Itens.find((answer) => answer.QuestaoEixoKey === questionKey);
             if (!question || !item) return null;
             const correct = question.Alternativas.find((alternative) => alternative.Correta === 1);
             return (
@@ -110,7 +110,7 @@ export default async function AttemptPage({
               if (!question?.Enunciado) return [];
               return [
                 {
-                  id: question.QuestaoKey,
+                  id: question.QuestaoEixoKey,
                   axis: question.EixoTematico,
                   statement: question.Enunciado,
                   options: question.Alternativas.map((alternative) => ({

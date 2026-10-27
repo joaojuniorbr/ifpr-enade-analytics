@@ -80,11 +80,11 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | --- | --- | --- | --- | --- |
 | **Marco 0** | 2 | Termo de abertura do projeto (escopo preliminar) | [marco-0.md](./marco-0.md) | Concluído |
 | **Marco 1** | 4 | Matriz de requisitos + termo de consentimento (LGPD) | [marco-1.md](./marco-1.md) · [termo-lgpd.md](./termo-lgpd.md) | Concluído |
-| **Marco 2** | 8 | Modelo de dados (Data Warehouse) do banco de questões/respostas | [marco-2.md](./marco-2.md) | Modelo dimensional definido |
-| **Marco 3** | 13 | Relatório de clusters / lacunas de conhecimento por eixo | [marco-3.md](./marco-3.md) | Análise do seed (piloto sintético) |
-| **Marco 4** | 16 | Dashboard com storytelling de dados | [marco-4.md](./marco-4.md) | Pendente |
-| **Marco 5** | 18 | Integração dos dados cadastrais (módulo tipo ERP acadêmico) | [marco-5.md](./marco-5.md) | Pendente |
-| **Entrega final** | 19–20 | Aplicação completa + manual técnico + apresentação à coordenação | [entrega-final.md](./entrega-final.md) | Pendente |
+| **Marco 2** | 8 | Modelo de dados (DW) — Guia Semana 7 + OLAP | [marco-2.md](./marco-2.md) | Concluído |
+| **Marco 3** | 13 | Relatório de clusters / lacunas de conhecimento por eixo | [marco-3.md](./marco-3.md) | Concluído (seed sintético) |
+| **Marco 4** | 16 | Dashboard com storytelling de dados | [marco-4.md](./marco-4.md) · [`powerbi/ENADE_Analytics.pbix`](./powerbi/ENADE_Analytics.pbix) | Concluído |
+| **Marco 5** | 18 | Integração dos dados cadastrais (módulo tipo ERP acadêmico) | [marco-5.md](./marco-5.md) | Concluído |
+| **Entrega final** | 19–20 | Aplicação completa + manual técnico + apresentação à coordenação | [entrega-final.md](./entrega-final.md) | Documento pronto |
 
 ---
 
@@ -96,7 +96,7 @@ Cronograma definido pela coordenação do curso. Cada marco possui um documento 
 | [marco-1.md](./marco-1.md) | Matriz de requisitos funcionais e não funcionais |
 | [termo-lgpd.md](./termo-lgpd.md) | Termo de Consentimento Livre e Esclarecido (TCLE) para participantes do simulado |
 | [marco-2.md](./marco-2.md) | Modelo de dados (Data Warehouse) — seções do template oficial |
-| [modelo-dimensional/](./modelo-dimensional/) | Esquema estrela Kimball — SQL, DBML e CSVs para o Power BI |
+| [modelo-dimensional/](./modelo-dimensional/) | Esquema estrela (Guia Semana 7) — SQL, DBML e CSVs para o Power BI |
 | [AGENTS.md](./AGENTS.md) · [agents/](./agents/) | Contexto para agentes (equipe, marcos, DW, LGPD) |
 | [marco-3.md](./marco-3.md) | Análise de mineração de dados e lacunas por eixo |
 | [powerbi/tutorial-marco-3.md](./powerbi/tutorial-marco-3.md) | Como montar a mineração no Power BI Desktop |

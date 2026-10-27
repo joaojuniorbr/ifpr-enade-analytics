@@ -16,18 +16,29 @@ export default async function StudentsPage({
   searchParams: Promise<{ notice?: string; error?: string; form?: string }>;
 }) {
   const params = await searchParams;
-  const students = await prisma.dim_Aluno_Anonimo.findMany({ orderBy: { AlunoKey: "asc" } });
+  const students = await prisma.dim_Aluno_Anonimo.findMany({
+    orderBy: { AlunoKey: "asc" },
+    include: { Dim_Turma: true },
+  });
   const creating = params.form === "novo";
   const editingKey = Number(params.form);
   const editing = students.find((student) => student.AlunoKey === editingKey);
   if (params.form && !creating && !editing) notFound();
+
+  const editingForForm = editing
+    ? {
+        AlunoKey: editing.AlunoKey,
+        CodigoAlunoAnonimo: editing.CodigoAlunoAnonimo,
+        TurmaGrupo: editing.Dim_Turma.TurmaGrupo,
+      }
+    : undefined;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Alunos anônimos</h1>
-          <p className="mt-1 text-sm text-slate-600">Dim_Aluno_Anonimo. Só código e turma. Sem nome, CPF ou e-mail.</p>
+          <p className="mt-1 text-sm text-slate-600">Dim_Aluno_Anonimo + Dim_Turma. Sem PII.</p>
         </div>
         <Link href={withForm("/admin/alunos", params, "novo")} className={primaryButton}>
           Incluir
@@ -40,7 +51,7 @@ export default async function StudentsPage({
         rows={students.map((student) => ({
           id: String(student.AlunoKey),
           href: withForm("/admin/alunos", params, String(student.AlunoKey)),
-          columns: [String(student.AlunoKey), student.CodigoAlunoAnonimo, student.TurmaGrupo],
+          columns: [String(student.AlunoKey), student.CodigoAlunoAnonimo, student.Dim_Turma.TurmaGrupo],
         }))}
       />
       <FormDrawer
@@ -50,7 +61,7 @@ export default async function StudentsPage({
       >
         <Messages error={params.error} />
         <div className="mt-4">
-          <StudentFields student={editing} />
+          <StudentFields student={editingForForm} />
         </div>
       </FormDrawer>
     </div>

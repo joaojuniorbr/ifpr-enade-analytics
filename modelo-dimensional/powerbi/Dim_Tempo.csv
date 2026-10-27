@@ -1,3 +1,5 @@
-"TempoKey","Data","Ano","Mes","NomeMes","SemanaSemestre"
-1,"2026-09-10",2026,9,"Setembro",8
-2,"2026-10-22",2026,10,"Outubro",14
+"TempoKey","Data","NumeroSimulado","CodigoSimulado","DescricaoSimulado","Ano","Mes","NomeMes","SemanaSemestre"
+1,"2026-09-10",1,"SIM-PILOTO-01","Simulado-piloto ENADE Analytics",2026,9,"Setembro",8
+2,"2026-10-22",2,"SIM-02","Simulado diagnóstico — outubro",2026,10,"Outubro",14
+3,"2026-11-05",3,"SIM-03","Simulado reforço — novembro",2026,11,"Novembro",17
+4,"2026-11-19",4,"SIM-04","Simulado pré-ENADE — reta final",2026,11,"Novembro",19

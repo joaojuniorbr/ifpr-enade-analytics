@@ -1,6 +1,6 @@
 -- ENADE Analytics — conteúdo das questões para o Navicat (MySQL)
 -- Rode este arquivo no banco da aplicação, que já tem o modelo estrela.
--- Não apaga Dim_Tempo, Dim_Aluno_Anonimo, Dim_Simulado nem Fato_Respostas.
+-- Não apaga Dim_Tempo, Dim_Aluno_Anonimo, Dim_Turma nem Fato_Respostas.
 --
 -- As 32 perguntas são originais de treino, uma para cada objeto de conhecimento
 -- da Portaria Inep nº 171/2026, art. 6º, em dois níveis. Não são itens oficiais do ENADE.
@@ -14,12 +14,12 @@ SET @tem_enunciado := (
   SELECT COUNT(*)
   FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'Dim_Questao'
+    AND TABLE_NAME = 'Dim_Questao_Eixo'
     AND COLUMN_NAME = 'Enunciado'
 );
 SET @sql_enunciado := IF(
   @tem_enunciado = 0,
-  'ALTER TABLE Dim_Questao ADD COLUMN Enunciado TEXT NULL',
+  'ALTER TABLE Dim_Questao_Eixo ADD COLUMN Enunciado TEXT NULL',
   'SELECT 1'
 );
 PREPARE stmt_enunciado FROM @sql_enunciado;
@@ -28,125 +28,125 @@ DEALLOCATE PREPARE stmt_enunciado;
 
 CREATE TABLE IF NOT EXISTS Alternativa (
   AlternativaKey INTEGER NOT NULL AUTO_INCREMENT,
-  QuestaoKey INTEGER NOT NULL,
+  QuestaoEixoKey INTEGER NOT NULL,
   Letra VARCHAR(1) NOT NULL,
   Texto VARCHAR(1000) NOT NULL,
   Correta INTEGER NOT NULL,
   PRIMARY KEY (AlternativaKey),
-  UNIQUE KEY UQ_Alternativa_Questao_Letra (QuestaoKey, Letra),
-  KEY IX_Alternativa_Questao (QuestaoKey),
-  CONSTRAINT Alternativa_ibfk_1 FOREIGN KEY (QuestaoKey) REFERENCES Dim_Questao (QuestaoKey) ON DELETE CASCADE ON UPDATE NO ACTION
+  UNIQUE KEY UQ_Alternativa_Questao_Letra (QuestaoEixoKey, Letra),
+  KEY IX_Alternativa_Questao (QuestaoEixoKey),
+  CONSTRAINT Alternativa_ibfk_1 FOREIGN KEY (QuestaoEixoKey) REFERENCES Dim_Questao_Eixo (QuestaoEixoKey) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Simulado_Questao (
-  SimuladoKey INTEGER NOT NULL,
-  QuestaoKey INTEGER NOT NULL,
-  PRIMARY KEY (SimuladoKey, QuestaoKey),
-  KEY IX_Simulado_Questao_Questao (QuestaoKey),
-  CONSTRAINT Simulado_Questao_ibfk_1 FOREIGN KEY (SimuladoKey) REFERENCES Dim_Simulado (SimuladoKey) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT Simulado_Questao_ibfk_2 FOREIGN KEY (QuestaoKey) REFERENCES Dim_Questao (QuestaoKey) ON DELETE CASCADE ON UPDATE NO ACTION
+  TempoKey INTEGER NOT NULL,
+  QuestaoEixoKey INTEGER NOT NULL,
+  PRIMARY KEY (TempoKey, QuestaoEixoKey),
+  KEY IX_Simulado_Questao_Questao (QuestaoEixoKey),
+  CONSTRAINT Simulado_Questao_ibfk_1 FOREIGN KEY (TempoKey) REFERENCES Dim_Tempo (TempoKey) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT Simulado_Questao_ibfk_2 FOREIGN KEY (QuestaoEixoKey) REFERENCES Dim_Questao_Eixo (QuestaoEixoKey) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Tentativa (
   TentativaKey INTEGER NOT NULL AUTO_INCREMENT,
   AlunoKey INTEGER NOT NULL,
-  SimuladoKey INTEGER NOT NULL,
+  TempoKey INTEGER NOT NULL,
   IniciadaEm DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   FinalizadaEm DATETIME(3) NULL,
   Acertos INTEGER NOT NULL DEFAULT 0,
   TotalQuestoes INTEGER NOT NULL,
   OrdemQuestoes VARCHAR(4000) NOT NULL,
   PRIMARY KEY (TentativaKey),
-  KEY IX_Tentativa_Aluno_Simulado (AlunoKey, SimuladoKey),
-  KEY IX_Tentativa_Simulado (SimuladoKey),
+  KEY IX_Tentativa_Aluno_Tempo (AlunoKey, TempoKey),
+  KEY IX_Tentativa_Tempo (TempoKey),
   CONSTRAINT Tentativa_ibfk_1 FOREIGN KEY (AlunoKey) REFERENCES Dim_Aluno_Anonimo (AlunoKey) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT Tentativa_ibfk_2 FOREIGN KEY (SimuladoKey) REFERENCES Dim_Simulado (SimuladoKey) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT Tentativa_ibfk_2 FOREIGN KEY (TempoKey) REFERENCES Dim_Tempo (TempoKey) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Tentativa_Item (
   TentativaKey INTEGER NOT NULL,
-  QuestaoKey INTEGER NOT NULL,
+  QuestaoEixoKey INTEGER NOT NULL,
   LetraMarcada VARCHAR(1) NOT NULL,
   Acertou INTEGER NOT NULL,
-  PRIMARY KEY (TentativaKey, QuestaoKey),
-  KEY IX_Tentativa_Item_Questao (QuestaoKey),
+  PRIMARY KEY (TentativaKey, QuestaoEixoKey),
+  KEY IX_Tentativa_Item_Questao (QuestaoEixoKey),
   CONSTRAINT Tentativa_Item_ibfk_1 FOREIGN KEY (TentativaKey) REFERENCES Tentativa (TentativaKey) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT Tentativa_Item_ibfk_2 FOREIGN KEY (QuestaoKey) REFERENCES Dim_Questao (QuestaoKey) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT Tentativa_Item_ibfk_2 FOREIGN KEY (QuestaoEixoKey) REFERENCES Dim_Questao_Eixo (QuestaoEixoKey) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 START TRANSACTION;
 
-UPDATE Dim_Questao AS q
+UPDATE Dim_Questao_Eixo AS q
 JOIN (
-  SELECT 1 AS QuestaoKey, 'Uma busca linear percorre uma lista não ordenada de n elementos até achar o valor ou chegar ao fim. No pior caso, quantas comparações esse algoritmo realiza?' AS Enunciado
+  SELECT 1 AS QuestaoEixoKey, 'Uma busca linear percorre uma lista não ordenada de n elementos até achar o valor ou chegar ao fim. No pior caso, quantas comparações esse algoritmo realiza?' AS Enunciado
   UNION ALL
-  SELECT 2 AS QuestaoKey, 'No quicksort, quando o pivô divide o vetor de forma equilibrada a cada passo, a complexidade de tempo média fica em qual classe?' AS Enunciado
+  SELECT 2 AS QuestaoEixoKey, 'No quicksort, quando o pivô divide o vetor de forma equilibrada a cada passo, a complexidade de tempo média fica em qual classe?' AS Enunciado
   UNION ALL
-  SELECT 3 AS QuestaoKey, 'A memória cache fica entre o processador e a memória principal. Qual é o papel dela na arquitetura?' AS Enunciado
+  SELECT 3 AS QuestaoEixoKey, 'A memória cache fica entre o processador e a memória principal. Qual é o papel dela na arquitetura?' AS Enunciado
   UNION ALL
-  SELECT 4 AS QuestaoKey, 'No modelo de von Neumann, como instruções e dados se relacionam com a memória?' AS Enunciado
+  SELECT 4 AS QuestaoEixoKey, 'No modelo de von Neumann, como instruções e dados se relacionam com a memória?' AS Enunciado
   UNION ALL
-  SELECT 5 AS QuestaoKey, 'As condições de Coffman descrevem quando processos podem entrar em deadlock. Além da espera circular, quais condições completam esse conjunto?' AS Enunciado
+  SELECT 5 AS QuestaoEixoKey, 'As condições de Coffman descrevem quando processos podem entrar em deadlock. Além da espera circular, quais condições completam esse conjunto?' AS Enunciado
   UNION ALL
-  SELECT 6 AS QuestaoKey, 'O escalonador de processos do sistema operacional decide, entre os processos prontos, qual deles:' AS Enunciado
+  SELECT 6 AS QuestaoEixoKey, 'O escalonador de processos do sistema operacional decide, entre os processos prontos, qual deles:' AS Enunciado
   UNION ALL
-  SELECT 7 AS QuestaoKey, 'Em uma tabela relacional, a chave primária tem qual função?' AS Enunciado
+  SELECT 7 AS QuestaoEixoKey, 'Em uma tabela relacional, a chave primária tem qual função?' AS Enunciado
   UNION ALL
-  SELECT 8 AS QuestaoKey, 'A terceira forma normal procura eliminar que tipo de redundância em relação à chave da tabela?' AS Enunciado
+  SELECT 8 AS QuestaoEixoKey, 'A terceira forma normal procura eliminar que tipo de redundância em relação à chave da tabela?' AS Enunciado
   UNION ALL
-  SELECT 9 AS QuestaoKey, 'No Scrum, qual artefato reúne o que o time se compromete a entregar na sprint atual?' AS Enunciado
+  SELECT 9 AS QuestaoEixoKey, 'No Scrum, qual artefato reúne o que o time se compromete a entregar na sprint atual?' AS Enunciado
   UNION ALL
-  SELECT 10 AS QuestaoKey, 'Um módulo com acoplamento alto e coesão baixa tende a apresentar qual característica de manutenção?' AS Enunciado
+  SELECT 10 AS QuestaoEixoKey, 'Um módulo com acoplamento alto e coesão baixa tende a apresentar qual característica de manutenção?' AS Enunciado
   UNION ALL
-  SELECT 11 AS QuestaoKey, 'Na rede de um cronograma, as atividades do caminho crítico têm folga total igual a:' AS Enunciado
+  SELECT 11 AS QuestaoEixoKey, 'Na rede de um cronograma, as atividades do caminho crítico têm folga total igual a:' AS Enunciado
   UNION ALL
-  SELECT 12 AS QuestaoKey, 'O escopo de um projeto serve para registrar:' AS Enunciado
+  SELECT 12 AS QuestaoEixoKey, 'O escopo de um projeto serve para registrar:' AS Enunciado
   UNION ALL
-  SELECT 13 AS QuestaoKey, 'Um feedback útil para uma equipe de TI deve ser:' AS Enunciado
+  SELECT 13 AS QuestaoEixoKey, 'Um feedback útil para uma equipe de TI deve ser:' AS Enunciado
   UNION ALL
-  SELECT 14 AS QuestaoKey, 'A matriz RACI é usada na organização do trabalho para deixar claro:' AS Enunciado
+  SELECT 14 AS QuestaoEixoKey, 'A matriz RACI é usada na organização do trabalho para deixar claro:' AS Enunciado
   UNION ALL
-  SELECT 15 AS QuestaoKey, 'Na prática de gestão de incidentes descrita pela ITIL, o objetivo imediato é:' AS Enunciado
+  SELECT 15 AS QuestaoEixoKey, 'Na prática de gestão de incidentes descrita pela ITIL, o objetivo imediato é:' AS Enunciado
   UNION ALL
-  SELECT 16 AS QuestaoKey, 'Na ITIL, um problema se diferencia de um incidente porque o problema:' AS Enunciado
+  SELECT 16 AS QuestaoEixoKey, 'Na ITIL, um problema se diferencia de um incidente porque o problema:' AS Enunciado
   UNION ALL
-  SELECT 17 AS QuestaoKey, 'Em um modelo estrela de data warehouse, a tabela fato ocupa qual papel?' AS Enunciado
+  SELECT 17 AS QuestaoEixoKey, 'Em um modelo estrela de data warehouse, a tabela fato ocupa qual papel?' AS Enunciado
   UNION ALL
-  SELECT 18 AS QuestaoKey, 'Um painel de inteligência de negócio apoia a gestão quando apresenta:' AS Enunciado
+  SELECT 18 AS QuestaoEixoKey, 'Um painel de inteligência de negócio apoia a gestão quando apresenta:' AS Enunciado
   UNION ALL
-  SELECT 19 AS QuestaoKey, 'No sentido do COBIT, a governança de TI existe para:' AS Enunciado
+  SELECT 19 AS QuestaoEixoKey, 'No sentido do COBIT, a governança de TI existe para:' AS Enunciado
   UNION ALL
-  SELECT 20 AS QuestaoKey, 'Separar governança e gestão, como faz o COBIT, significa que a governança:' AS Enunciado
+  SELECT 20 AS QuestaoEixoKey, 'Separar governança e gestão, como faz o COBIT, significa que a governança:' AS Enunciado
   UNION ALL
-  SELECT 21 AS QuestaoKey, 'A análise SWOT organiza o diagnóstico estratégico em quatro grupos. Quais são eles?' AS Enunciado
+  SELECT 21 AS QuestaoEixoKey, 'A análise SWOT organiza o diagnóstico estratégico em quatro grupos. Quais são eles?' AS Enunciado
   UNION ALL
-  SELECT 22 AS QuestaoKey, 'No modelo VRIO, um recurso sustenta vantagem competitiva quando é valioso, raro, difícil de imitar e:' AS Enunciado
+  SELECT 22 AS QuestaoEixoKey, 'No modelo VRIO, um recurso sustenta vantagem competitiva quando é valioso, raro, difícil de imitar e:' AS Enunciado
   UNION ALL
-  SELECT 23 AS QuestaoKey, 'Em um processo, o gargalo é a etapa que:' AS Enunciado
+  SELECT 23 AS QuestaoEixoKey, 'Em um processo, o gargalo é a etapa que:' AS Enunciado
   UNION ALL
-  SELECT 24 AS QuestaoKey, 'Um fluxograma de processo é desenhado para mostrar:' AS Enunciado
+  SELECT 24 AS QuestaoEixoKey, 'Um fluxograma de processo é desenhado para mostrar:' AS Enunciado
   UNION ALL
-  SELECT 25 AS QuestaoKey, 'Na rede TCP/IP, o endereço IP serve para:' AS Enunciado
+  SELECT 25 AS QuestaoEixoKey, 'Na rede TCP/IP, o endereço IP serve para:' AS Enunciado
   UNION ALL
-  SELECT 26 AS QuestaoKey, 'Uma aplicação escolhe TCP, e não UDP, quando precisa de:' AS Enunciado
+  SELECT 26 AS QuestaoEixoKey, 'Uma aplicação escolhe TCP, e não UDP, quando precisa de:' AS Enunciado
   UNION ALL
-  SELECT 27 AS QuestaoKey, 'O princípio do menor privilégio recomenda que cada conta receba:' AS Enunciado
+  SELECT 27 AS QuestaoEixoKey, 'O princípio do menor privilégio recomenda que cada conta receba:' AS Enunciado
   UNION ALL
-  SELECT 28 AS QuestaoKey, 'Na tríade confidencialidade, integridade e disponibilidade, integridade significa que:' AS Enunciado
+  SELECT 28 AS QuestaoEixoKey, 'Na tríade confidencialidade, integridade e disponibilidade, integridade significa que:' AS Enunciado
   UNION ALL
-  SELECT 29 AS QuestaoKey, 'Um sistema de informações gerenciais apoia sobretudo o nível tático com:' AS Enunciado
+  SELECT 29 AS QuestaoEixoKey, 'Um sistema de informações gerenciais apoia sobretudo o nível tático com:' AS Enunciado
   UNION ALL
-  SELECT 30 AS QuestaoKey, 'Em relação a um sistema transacional, o sistema de informações gerenciais enfatiza:' AS Enunciado
+  SELECT 30 AS QuestaoEixoKey, 'Em relação a um sistema transacional, o sistema de informações gerenciais enfatiza:' AS Enunciado
   UNION ALL
-  SELECT 31 AS QuestaoKey, 'Pela Lei Geral de Proteção de Dados, dado pessoal é informação ligada a pessoa natural identificada ou identificável. O tratamento desse dado exige:' AS Enunciado
+  SELECT 31 AS QuestaoEixoKey, 'Pela Lei Geral de Proteção de Dados, dado pessoal é informação ligada a pessoa natural identificada ou identificável. O tratamento desse dado exige:' AS Enunciado
   UNION ALL
-  SELECT 32 AS QuestaoKey, 'Anonimizar um dado, no sentido da LGPD, significa usar meios razoáveis pelos quais:' AS Enunciado
-) AS origem ON origem.QuestaoKey = q.QuestaoKey
+  SELECT 32 AS QuestaoEixoKey, 'Anonimizar um dado, no sentido da LGPD, significa usar meios razoáveis pelos quais:' AS Enunciado
+) AS origem ON origem.QuestaoEixoKey = q.QuestaoEixoKey
 SET q.Enunciado = origem.Enunciado;
 
-DELETE FROM Alternativa WHERE QuestaoKey BETWEEN 1 AND 32;
+DELETE FROM Alternativa WHERE QuestaoEixoKey BETWEEN 1 AND 32;
 
-INSERT INTO Alternativa (AlternativaKey, QuestaoKey, Letra, Texto, Correta) VALUES
+INSERT INTO Alternativa (AlternativaKey, QuestaoEixoKey, Letra, Texto, Correta) VALUES
 (1, 1, 'A', '1 comparação, qualquer que seja n.', 0),
 (2, 1, 'B', 'Cerca de log2 de n comparações.', 0),
 (3, 1, 'C', 'n comparações, uma para cada elemento.', 1),
@@ -308,9 +308,9 @@ INSERT INTO Alternativa (AlternativaKey, QuestaoKey, Letra, Texto, Correta) VALU
 (159, 32, 'D', 'O e-mail é enviado só para a coordenação.', 0),
 (160, 32, 'E', 'Basta guardar o primeiro nome.', 0);
 
-DELETE FROM Simulado_Questao WHERE SimuladoKey IN (1, 2);
+DELETE FROM Simulado_Questao WHERE TempoKey IN (1, 2);
 
-INSERT INTO Simulado_Questao (SimuladoKey, QuestaoKey) VALUES
+INSERT INTO Simulado_Questao (TempoKey, QuestaoEixoKey) VALUES
 (1, 1),
 (2, 2),
 (1, 3),

@@ -27,17 +27,17 @@ export default async function ExamPage({
   const { key: keyParam } = await params;
   const key = Number(keyParam);
   if (!Number.isInteger(key)) notFound();
-  const exam = await prisma.dim_Simulado.findUnique({
-    where: { SimuladoKey: key },
+  const exam = await prisma.dim_Tempo.findUnique({
+    where: { TempoKey: key },
     include: {
-      Simulado_Questoes: { include: { Dim_Questao: { include: { Alternativas: true } } } },
+      Simulado_Questoes: { include: { Dim_Questao_Eixo: { include: { Alternativas: true } } } },
       Tentativas: { where: { AlunoKey: student.AlunoKey }, orderBy: { IniciadaEm: "desc" } },
     },
   });
   if (!exam) notFound();
 
   const query = await searchParams;
-  const ready = exam.Simulado_Questoes.filter((item) => isReadyQuestion(item.Dim_Questao)).length;
+  const ready = exam.Simulado_Questoes.filter((item) => isReadyQuestion(item.Dim_Questao_Eixo)).length;
   const open = exam.Tentativas.find((attempt) => !attempt.FinalizadaEm);
   const finished = exam.Tentativas.filter((attempt) => attempt.FinalizadaEm);
 
@@ -45,7 +45,7 @@ export default async function ExamPage({
     <div className="mx-auto grid max-w-5xl items-start gap-4 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="space-y-4">
         <section className={cardClass}>
-          <p className="text-sm text-[#245c38]">Aplicação {exam.NumeroAplicacao}</p>
+          <p className="text-sm text-[#245c38]">Aplicação {exam.NumeroSimulado}</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{exam.DescricaoSimulado}</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
             {ready} {ready === 1 ? "pergunta" : "perguntas"} de múltipla escolha. A ordem é sorteada quando a tentativa
@@ -58,12 +58,12 @@ export default async function ExamPage({
           ) : null}
           <div className="mt-5 flex flex-wrap gap-3">
             {open ? (
-              <Link href={`/simulados/${exam.SimuladoKey}/tentativa/${open.TentativaKey}`} className={primaryButton}>
+              <Link href={`/simulados/${exam.TempoKey}/tentativa/${open.TentativaKey}`} className={primaryButton}>
                 Continuar tentativa
               </Link>
             ) : (
               <form action={startAttempt}>
-                <input type="hidden" name="examKey" value={exam.SimuladoKey} />
+                <input type="hidden" name="examKey" value={exam.TempoKey} />
                 <button type="submit" className={primaryButton} disabled={ready === 0}>
                   {finished.length > 0 ? "Nova tentativa" : "Começar"}
                 </button>
@@ -84,7 +84,7 @@ export default async function ExamPage({
               {finished.map((attempt, index) => (
                 <li key={attempt.TentativaKey} className="flex items-center justify-between gap-3 py-3">
                   <Link
-                    href={`/simulados/${exam.SimuladoKey}/tentativa/${attempt.TentativaKey}`}
+                    href={`/simulados/${exam.TempoKey}/tentativa/${attempt.TentativaKey}`}
                     className={linkClass}
                   >
                     Tentativa {finished.length - index}

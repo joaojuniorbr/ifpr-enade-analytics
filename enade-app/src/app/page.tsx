@@ -19,10 +19,10 @@ export default async function Home() {
   if (!student) redirect("/primeiro-acesso");
 
   const firstName = user.name.split(" ")[0];
-  const exams = await prisma.dim_Simulado.findMany({
-    orderBy: { NumeroAplicacao: "asc" },
+  const exams = await prisma.dim_Tempo.findMany({
+    orderBy: { NumeroSimulado: "asc" },
     include: {
-      Simulado_Questoes: { include: { Dim_Questao: { include: { Alternativas: true } } } },
+      Simulado_Questoes: { include: { Dim_Questao_Eixo: { include: { Alternativas: true } } } },
       Tentativas: { where: { AlunoKey: student.AlunoKey }, orderBy: { IniciadaEm: "desc" } },
     },
   });
@@ -54,7 +54,7 @@ export default async function Home() {
         <h2 className="text-lg font-semibold text-slate-950">Seus simulados</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {exams.map((exam, index) => {
-            const ready = exam.Simulado_Questoes.filter((item) => isReadyQuestion(item.Dim_Questao)).length;
+            const ready = exam.Simulado_Questoes.filter((item) => isReadyQuestion(item.Dim_Questao_Eixo)).length;
             const finished = exam.Tentativas.filter((attempt) => attempt.FinalizadaEm);
             const latest = finished[0];
             const open = exam.Tentativas.find((attempt) => !attempt.FinalizadaEm);
@@ -68,9 +68,9 @@ export default async function Home() {
             const label = open ? "Continuar" : finished.length > 0 ? "Fazer de novo" : "Começar";
 
             return (
-              <article key={exam.SimuladoKey} className={`${cardClass} flex flex-col`}>
+              <article key={exam.TempoKey} className={`${cardClass} flex flex-col`}>
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm text-slate-500">Aplicação {exam.NumeroAplicacao}</p>
+                  <p className="text-sm text-slate-500">Aplicação {exam.NumeroSimulado}</p>
                   <Image
                     src={cardImages[index % cardImages.length]}
                     alt=""
@@ -89,7 +89,7 @@ export default async function Home() {
                 {ready === 0 ? (
                   <span className={`${mutedButton} mt-6 w-full`}>{label}</span>
                 ) : (
-                  <Link href={`/simulados/${exam.SimuladoKey}`} className={`${primaryButton} mt-6 w-full`}>
+                  <Link href={`/simulados/${exam.TempoKey}`} className={`${primaryButton} mt-6 w-full`}>
                     {label}
                   </Link>
                 )}

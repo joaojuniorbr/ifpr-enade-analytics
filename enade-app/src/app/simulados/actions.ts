@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStudent } from "@/lib/auth";
 import { databaseMessage } from "@/lib/database";
+import { syncFatoFromAttempt } from "@/lib/fato-sync";
 import { isReadyQuestion, shuffle } from "@/lib/questions";
 import { prisma } from "@/lib/prisma";
 import { findStudent } from "@/lib/student";
@@ -19,22 +20,22 @@ export async function startAttempt(formData: FormData) {
   if (!student || !Number.isInteger(examKey)) redirect("/");
 
   const open = await prisma.tentativa.findFirst({
-    where: { AlunoKey: student.AlunoKey, SimuladoKey: examKey, FinalizadaEm: null },
+    where: { AlunoKey: student.AlunoKey, TempoKey: examKey, FinalizadaEm: null },
   });
   if (open) redirect(`/simulados/${examKey}/tentativa/${open.TentativaKey}`);
 
   const links = await prisma.simulado_Questao.findMany({
-    where: { SimuladoKey: examKey },
-    include: { Dim_Questao: { include: { Alternativas: true } } },
+    where: { TempoKey: examKey },
+    include: { Dim_Questao_Eixo: { include: { Alternativas: true } } },
   });
-  const ready = links.map((link) => link.Dim_Questao).filter(isReadyQuestion);
+  const ready = links.map((link) => link.Dim_Questao_Eixo).filter(isReadyQuestion);
   if (ready.length === 0) examPath(examKey, "Este simulado ainda não tem perguntas prontas.");
 
-  const order = shuffle(ready.map((question) => question.QuestaoKey));
+  const order = shuffle(ready.map((question) => question.QuestaoEixoKey));
   const attempt = await prisma.tentativa.create({
     data: {
       AlunoKey: student.AlunoKey,
-      SimuladoKey: examKey,
+      TempoKey: examKey,
       TotalQuestoes: order.length,
       OrdemQuestoes: order.join(","),
     },
@@ -53,15 +54,15 @@ export async function submitAttempt(formData: FormData) {
 
   const attempt = await prisma.tentativa.findUnique({ where: { TentativaKey: attemptKey } });
   if (!attempt || attempt.AlunoKey !== student.AlunoKey) redirect("/");
-  if (attempt.FinalizadaEm) redirect(`/simulados/${attempt.SimuladoKey}/tentativa/${attempt.TentativaKey}`);
+  if (attempt.FinalizadaEm) redirect(`/simulados/${attempt.TempoKey}/tentativa/${attempt.TentativaKey}`);
 
   const order = attempt.OrdemQuestoes.split(",").map(Number).filter((key) => Number.isInteger(key) && key > 0);
-  const questions = await prisma.dim_Questao.findMany({
-    where: { QuestaoKey: { in: order } },
+  const questions = await prisma.dim_Questao_Eixo.findMany({
+    where: { QuestaoEixoKey: { in: order } },
     include: { Alternativas: true },
   });
-  const byKey = new Map(questions.map((question) => [question.QuestaoKey, question]));
-  const back = `/simulados/${attempt.SimuladoKey}/tentativa/${attempt.TentativaKey}`;
+  const byKey = new Map(questions.map((question) => [question.QuestaoEixoKey, question]));
+  const back = `/simulados/${attempt.TempoKey}/tentativa/${attempt.TentativaKey}`;
 
   const items = [];
   for (const questionKey of order) {
@@ -77,7 +78,7 @@ export async function submitAttempt(formData: FormData) {
     const correct = question.Alternativas.find((item) => item.Correta === 1)?.Letra;
     items.push({
       TentativaKey: attempt.TentativaKey,
-      QuestaoKey: questionKey,
+      QuestaoEixoKey: questionKey,
       LetraMarcada: marked,
       Acertou: marked === correct ? 1 : 0,
     });
@@ -92,6 +93,13 @@ export async function submitAttempt(formData: FormData) {
         data: { Acertos: hits, TotalQuestoes: items.length, FinalizadaEm: new Date() },
       }),
     ]);
+    await syncFatoFromAttempt(
+      attempt.TentativaKey,
+      attempt.TempoKey,
+      student.AlunoKey,
+      student.TurmaKey,
+      items,
+    );
   } catch (error) {
     const message = databaseMessage(error, "save");
     if (message) redirect(`${back}?error=${encodeURIComponent(message)}`);
@@ -100,7 +108,8 @@ export async function submitAttempt(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/evolucao");
-  revalidatePath(`/admin/simulados/${attempt.SimuladoKey}`);
+  revalidatePath("/admin");
+  revalidatePath(`/admin/simulados/${attempt.TempoKey}`);
   redirect(back);
 }
 
@@ -115,6 +124,6 @@ export async function discardAttempt(formData: FormData) {
 
   await prisma.tentativa.delete({ where: { TentativaKey: attemptKey } });
   revalidatePath("/");
-  revalidatePath(`/simulados/${attempt.SimuladoKey}`);
-  redirect(`/simulados/${attempt.SimuladoKey}`);
+  revalidatePath(`/simulados/${attempt.TempoKey}`);
+  redirect(`/simulados/${attempt.TempoKey}`);
 }

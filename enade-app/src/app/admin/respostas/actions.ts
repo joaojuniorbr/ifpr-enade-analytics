@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { databaseMessage } from "@/lib/database";
 import { prisma } from "@/lib/prisma";
-import { zodMessage, answerSchema } from "@/lib/validation";
+import { answerSchema, zodMessage } from "@/lib/validation";
 
 function destination(key: number | null, error: string) {
   const form = key ? String(key) : "novo";
@@ -20,7 +20,6 @@ export async function saveAnswer(formData: FormData) {
     timeKey: formData.get("timeKey"),
     studentKey: formData.get("studentKey"),
     questionKey: formData.get("questionKey"),
-    examKey: formData.get("examKey"),
     answer: formData.get("answer"),
     wasCorrect: formData.get("wasCorrect"),
     seconds: formData.get("seconds"),
@@ -29,11 +28,22 @@ export async function saveAnswer(formData: FormData) {
   if (!parsed.success) return;
   const values = parsed.data;
   const seconds = values.seconds === "" ? null : Number(values.seconds);
+
+  const [student, question] = await Promise.all([
+    prisma.dim_Aluno_Anonimo.findUnique({ where: { AlunoKey: values.studentKey } }),
+    prisma.dim_Questao_Eixo.findUnique({ where: { QuestaoEixoKey: values.questionKey } }),
+  ]);
+  if (!student || !question) {
+    destination(editing ? key : null, "Aluno ou questão não encontrados.");
+    return;
+  }
+
   const fields = {
     TempoKey: values.timeKey,
     AlunoKey: values.studentKey,
-    QuestaoKey: values.questionKey,
-    SimuladoKey: values.examKey,
+    QuestaoEixoKey: values.questionKey,
+    DificuldadeKey: question.DificuldadeKey,
+    TurmaKey: student.TurmaKey,
     RespostaDada: values.answer,
     Acertou: Number(values.wasCorrect),
     TempoRespostaSegundos: seconds,

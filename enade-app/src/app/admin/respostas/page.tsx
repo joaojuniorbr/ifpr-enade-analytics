@@ -37,29 +37,31 @@ export default async function AnswersPage({
 	const examKey = optionalKey(params.examKey);
 	const questionKey = optionalKey(params.questionKey);
 	const timeKey = optionalKey(params.timeKey);
-	const [answers, timeRecords, students, questions, exams] = await Promise.all([
+	const [answers, timeRecords, students, questions] = await Promise.all([
 		prisma.fato_Respostas.findMany({
 			orderBy: { RespostaKey: 'asc' },
 			include: {
 				Dim_Aluno_Anonimo: {
-					select: { CodigoAlunoAnonimo: true, TurmaGrupo: true },
+					select: {
+						CodigoAlunoAnonimo: true,
+						Dim_Turma: { select: { TurmaGrupo: true } },
+					},
 				},
-				Dim_Questao: { select: { CodigoQuestao: true, EixoTematico: true } },
-				Dim_Simulado: {
-					select: { CodigoSimulado: true, NumeroAplicacao: true },
+				Dim_Questao_Eixo: { select: { CodigoQuestao: true, EixoTematico: true } },
+				Dim_Tempo: {
+					select: { CodigoSimulado: true, NumeroSimulado: true },
 				},
 			},
 		}),
 		prisma.dim_Tempo.findMany({ orderBy: { TempoKey: 'asc' } }),
 		prisma.dim_Aluno_Anonimo.findMany({ orderBy: { AlunoKey: 'asc' } }),
-		prisma.dim_Questao.findMany({ orderBy: { QuestaoKey: 'asc' } }),
-		prisma.dim_Simulado.findMany({ orderBy: { NumeroAplicacao: 'asc' } }),
+		prisma.dim_Questao_Eixo.findMany({ orderBy: { QuestaoEixoKey: 'asc' } }),
 	]);
 	const filtered = answers.filter(
 		(answer) =>
 			(studentKey == null || answer.AlunoKey === studentKey) &&
-			(examKey == null || answer.SimuladoKey === examKey) &&
-			(questionKey == null || answer.QuestaoKey === questionKey) &&
+			(examKey == null || answer.TempoKey === examKey) &&
+			(questionKey == null || answer.QuestaoEixoKey === questionKey) &&
 			(timeKey == null || answer.TempoKey === timeKey)
 	);
 	const overviews = groupByStudent(filtered);
@@ -76,12 +78,8 @@ export default async function AnswersPage({
 		label: student.CodigoAlunoAnonimo,
 	}));
 	const questionOptions = questions.map((question) => ({
-		id: question.QuestaoKey,
+		id: question.QuestaoEixoKey,
 		label: question.CodigoQuestao,
-	}));
-	const examOptions = exams.map((exam) => ({
-		id: exam.SimuladoKey,
-		label: exam.CodigoSimulado,
 	}));
 
 	return (
@@ -140,7 +138,7 @@ export default async function AnswersPage({
 				>
 					<option value=''>Todas as questões</option>
 					{questions.map((question) => (
-						<option key={question.QuestaoKey} value={question.QuestaoKey}>
+						<option key={question.QuestaoEixoKey} value={question.QuestaoEixoKey}>
 							{question.CodigoQuestao}
 						</option>
 					))}
@@ -151,8 +149,8 @@ export default async function AnswersPage({
 					defaultValue={params.examKey ?? ''}
 				>
 					<option value=''>Todos os simulados</option>
-					{exams.map((exam) => (
-						<option key={exam.SimuladoKey} value={exam.SimuladoKey}>
+					{timeRecords.map((exam) => (
+						<option key={exam.TempoKey} value={exam.TempoKey}>
 							{exam.CodigoSimulado}
 						</option>
 					))}
@@ -174,10 +172,9 @@ export default async function AnswersPage({
 				<div className='mt-4'>
 					<AnswerFields
 						answer={editing}
-						dates={dateOptions}
+						timeRecords={dateOptions}
 						students={studentOptions}
 						questions={questionOptions}
-						exams={examOptions}
 					/>
 				</div>
 			</FormDrawer>
@@ -194,13 +191,16 @@ function groupByStudent(
 	answers: {
 		RespostaKey: number;
 		AlunoKey: number;
-		SimuladoKey: number;
+		TempoKey: number;
 		RespostaDada: string;
 		Acertou: number;
 		TempoRespostaSegundos: number | null;
-		Dim_Aluno_Anonimo: { CodigoAlunoAnonimo: string; TurmaGrupo: string };
-		Dim_Questao: { CodigoQuestao: string; EixoTematico: string };
-		Dim_Simulado: { CodigoSimulado: string; NumeroAplicacao: number };
+		Dim_Aluno_Anonimo: {
+			CodigoAlunoAnonimo: string;
+			Dim_Turma: { TurmaGrupo: string };
+		};
+		Dim_Questao_Eixo: { CodigoQuestao: string; EixoTematico: string };
+		Dim_Tempo: { CodigoSimulado: string; NumeroSimulado: number };
 	}[]
 ): StudentAnswerView[] {
 	const students = new Map<
@@ -218,7 +218,7 @@ function groupByStudent(
 		const student = students.get(studentId) ?? {
 			id: studentId,
 			code: answer.Dim_Aluno_Anonimo.CodigoAlunoAnonimo,
-			classGroup: answer.Dim_Aluno_Anonimo.TurmaGrupo,
+			classGroup: answer.Dim_Aluno_Anonimo.Dim_Turma.TurmaGrupo,
 			hits: 0,
 			total: 0,
 			exams: [],
@@ -227,11 +227,11 @@ function groupByStudent(
 		student.total += 1;
 		student.hits += answer.Acertou === 1 ? 1 : 0;
 
-		const examId = String(answer.SimuladoKey);
+		const examId = String(answer.TempoKey);
 		const exam = student.examsById.get(examId) ?? {
 			id: examId,
-			name: answer.Dim_Simulado.CodigoSimulado,
-			application: answer.Dim_Simulado.NumeroAplicacao,
+			name: answer.Dim_Tempo.CodigoSimulado,
+			application: answer.Dim_Tempo.NumeroSimulado,
 			hits: 0,
 			total: 0,
 			rows: [],
@@ -241,8 +241,8 @@ function groupByStudent(
 		exam.rows.push({
 			id: String(answer.RespostaKey),
 			href: `/admin/respostas?form=${answer.RespostaKey}`,
-			question: answer.Dim_Questao.CodigoQuestao,
-			axis: answer.Dim_Questao.EixoTematico,
+			question: answer.Dim_Questao_Eixo.CodigoQuestao,
+			axis: answer.Dim_Questao_Eixo.EixoTematico,
 			answer: answer.RespostaDada,
 			correct: answer.Acertou === 1,
 			seconds:

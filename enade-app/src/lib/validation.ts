@@ -89,7 +89,6 @@ export const answerSchema = z.object({
   timeKey: z.coerce.number().int().positive(),
   studentKey: z.coerce.number().int().positive(),
   questionKey: z.coerce.number().int().positive(),
-  examKey: z.coerce.number().int().positive(),
   answer: z.string().trim().min(1, "Informe a resposta.").max(8, "A resposta pode ter no máximo 8 caracteres."),
   wasCorrect: z.enum(["0", "1"], "Marque se acertou."),
   seconds: z

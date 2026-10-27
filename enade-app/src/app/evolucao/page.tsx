@@ -16,8 +16,8 @@ export default async function EvolutionPage() {
   const student = await findStudent(user);
   if (!student) redirect("/primeiro-acesso");
 
-  const exams = await prisma.dim_Simulado.findMany({
-    orderBy: { NumeroAplicacao: "asc" },
+  const exams = await prisma.dim_Tempo.findMany({
+    orderBy: { NumeroSimulado: "asc" },
     include: {
       Tentativas: {
         where: { AlunoKey: student.AlunoKey, FinalizadaEm: { not: null } },
@@ -51,7 +51,7 @@ export default async function EvolutionPage() {
           if (attempts.length === 0) {
             return (
               <article
-                key={exam.SimuladoKey}
+                key={exam.TempoKey}
                 className={`${cardClass} flex min-h-80 flex-col items-center justify-center text-center`}
               >
                 <h2 className="self-start text-base font-semibold text-slate-950">{exam.DescricaoSimulado}</h2>
@@ -74,7 +74,7 @@ export default async function EvolutionPage() {
           }
 
           return (
-            <article key={exam.SimuladoKey} className={cardClass}>
+            <article key={exam.TempoKey} className={cardClass}>
               <h2 className="text-base font-semibold text-slate-950">{exam.DescricaoSimulado}</h2>
               <div className="mt-4">
                 <EvolutionChart
@@ -91,7 +91,7 @@ export default async function EvolutionPage() {
                 {[...attempts].reverse().map((attempt, index) => (
                   <li key={attempt.TentativaKey} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-3">
                     <Link
-                      href={`/simulados/${exam.SimuladoKey}/tentativa/${attempt.TentativaKey}`}
+                      href={`/simulados/${exam.TempoKey}/tentativa/${attempt.TentativaKey}`}
                       className="font-medium text-slate-800"
                     >
                       Tentativa {attempts.length - index}

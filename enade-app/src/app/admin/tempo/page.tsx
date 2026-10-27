@@ -33,7 +33,7 @@ export default async function TimePage({
 				<div>
 					<h1 className='text-2xl font-semibold text-slate-900'>Tempo</h1>
 					<p className='mt-1 text-sm text-slate-600'>
-						Dim_Tempo. Uma linha por data de aplicação.
+						Dim_Tempo — calendário da aplicação (simulado nº e código ficam em Simulados).
 					</p>
 				</div>
 				<Link

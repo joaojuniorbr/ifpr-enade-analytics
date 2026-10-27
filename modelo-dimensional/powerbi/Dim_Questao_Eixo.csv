@@ -1,0 +1,33 @@
+"QuestaoEixoKey","CodigoQuestao","EixoTematico","Enunciado","DificuldadeKey"
+1,"Q01","Algoritmos","Uma busca linear percorre uma lista não ordenada de n elementos até achar o valor ou chegar ao fim. No pior caso, quantas comparações esse algoritmo realiza?",1
+2,"Q02","Algoritmos","No quicksort, quando o pivô divide o vetor de forma equilibrada a cada passo, a complexidade de tempo média fica em qual classe?",2
+3,"Q03","Arquitetura de computadores","A memória cache fica entre o processador e a memória principal. Qual é o papel dela na arquitetura?",2
+4,"Q04","Arquitetura de computadores","No modelo de von Neumann, como instruções e dados se relacionam com a memória?",3
+5,"Q05","Sistemas operacionais","As condições de Coffman descrevem quando processos podem entrar em deadlock. Além da espera circular, quais condições completam esse conjunto?",3
+6,"Q06","Sistemas operacionais","O escalonador de processos do sistema operacional decide, entre os processos prontos, qual deles:",1
+7,"Q07","Banco de dados","Em uma tabela relacional, a chave primária tem qual função?",1
+8,"Q08","Banco de dados","A terceira forma normal procura eliminar que tipo de redundância em relação à chave da tabela?",2
+9,"Q09","Engenharia de software","No Scrum, qual artefato reúne o que o time se compromete a entregar na sprint atual?",2
+10,"Q10","Engenharia de software","Um módulo com acoplamento alto e coesão baixa tende a apresentar qual característica de manutenção?",3
+11,"Q11","Gerência de projetos","Na rede de um cronograma, as atividades do caminho crítico têm folga total igual a:",3
+12,"Q12","Gerência de projetos","O escopo de um projeto serve para registrar:",1
+13,"Q13","Gestão de pessoas","Um feedback útil para uma equipe de TI deve ser:",1
+14,"Q14","Gestão de pessoas","A matriz RACI é usada na organização do trabalho para deixar claro:",2
+15,"Q15","Gestão dos serviços de TI","Na prática de gestão de incidentes descrita pela ITIL, o objetivo imediato é:",2
+16,"Q16","Gestão dos serviços de TI","Na ITIL, um problema se diferencia de um incidente porque o problema:",3
+17,"Q17","Tecnologias para inteligência de negócio","Em um modelo estrela de data warehouse, a tabela fato ocupa qual papel?",3
+18,"Q18","Tecnologias para inteligência de negócio","Um painel de inteligência de negócio apoia a gestão quando apresenta:",1
+19,"Q19","Governança de tecnologia da informação","No sentido do COBIT, a governança de TI existe para:",1
+20,"Q20","Governança de tecnologia da informação","Separar governança e gestão, como faz o COBIT, significa que a governança:",2
+21,"Q21","Gestão estratégica organizacional","A análise SWOT organiza o diagnóstico estratégico em quatro grupos. Quais são eles?",2
+22,"Q22","Gestão estratégica organizacional","No modelo VRIO, um recurso sustenta vantagem competitiva quando é valioso, raro, difícil de imitar e:",3
+23,"Q23","Processos organizacionais","Em um processo, o gargalo é a etapa que:",3
+24,"Q24","Processos organizacionais","Um fluxograma de processo é desenhado para mostrar:",1
+25,"Q25","Redes de computadores","Na rede TCP/IP, o endereço IP serve para:",1
+26,"Q26","Redes de computadores","Uma aplicação escolhe TCP, e não UDP, quando precisa de:",2
+27,"Q27","Segurança da informação","O princípio do menor privilégio recomenda que cada conta receba:",2
+28,"Q28","Segurança da informação","Na tríade confidencialidade, integridade e disponibilidade, integridade significa que:",3
+29,"Q29","Sistemas de informações gerenciais","Um sistema de informações gerenciais apoia sobretudo o nível tático com:",3
+30,"Q30","Sistemas de informações gerenciais","Em relação a um sistema transacional, o sistema de informações gerenciais enfatiza:",1
+31,"Q31","Ética, tecnologia e sociedade","Pela Lei Geral de Proteção de Dados, dado pessoal é informação ligada a pessoa natural identificada ou identificável. O tratamento desse dado exige:",1
+32,"Q32","Ética, tecnologia e sociedade","Anonimizar um dado, no sentido da LGPD, significa usar meios razoáveis pelos quais:",2

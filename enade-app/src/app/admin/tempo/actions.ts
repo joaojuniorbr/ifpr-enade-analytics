@@ -40,8 +40,15 @@ export async function saveTime(formData: FormData) {
       await prisma.dim_Tempo.update({ where: { TempoKey: key }, data: fields });
     } else {
       const latest = await prisma.dim_Tempo.aggregate({ _max: { TempoKey: true } });
+      const tempoKey = (latest._max.TempoKey ?? 0) + 1;
       await prisma.dim_Tempo.create({
-        data: { TempoKey: (latest._max.TempoKey ?? 0) + 1, ...fields },
+        data: {
+          TempoKey: tempoKey,
+          ...fields,
+          NumeroSimulado: tempoKey,
+          CodigoSimulado: `SIM-${tempoKey}`,
+          DescricaoSimulado: `Aplicação ${tempoKey}`,
+        },
       });
     }
   } catch (error) {

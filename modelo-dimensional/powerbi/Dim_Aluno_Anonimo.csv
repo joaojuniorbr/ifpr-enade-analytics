@@ -1,13 +1,37 @@
-"AlunoKey","CodigoAlunoAnonimo","TurmaGrupo"
-1,"Aluno_001","TGI Noturno A"
-2,"Aluno_002","TGI Noturno A"
-3,"Aluno_003","TGI Noturno A"
-4,"Aluno_004","TGI Noturno A"
-5,"Aluno_005","TGI Noturno A"
-6,"Aluno_006","TGI Noturno A"
-7,"Aluno_007","TGI Noturno B"
-8,"Aluno_008","TGI Noturno B"
-9,"Aluno_009","TGI Noturno B"
-10,"Aluno_010","TGI Noturno B"
-11,"Aluno_011","TGI Noturno B"
-12,"Aluno_012","TGI Noturno B"
+"AlunoKey","CodigoAlunoAnonimo","TurmaKey"
+1,"Aluno_001",1
+2,"Aluno_002",1
+3,"Aluno_003",1
+4,"Aluno_004",1
+5,"Aluno_005",1
+6,"Aluno_006",1
+7,"Aluno_007",2
+8,"Aluno_008",2
+9,"Aluno_009",2
+10,"Aluno_010",2
+11,"Aluno_011",2
+12,"Aluno_012",2
+13,"Aluno_013",3
+14,"Aluno_014",3
+15,"Aluno_015",3
+16,"Aluno_016",3
+17,"Aluno_017",3
+18,"Aluno_018",3
+19,"Aluno_019",4
+20,"Aluno_020",4
+21,"Aluno_021",4
+22,"Aluno_022",4
+23,"Aluno_023",4
+24,"Aluno_024",4
+25,"Aluno_025",5
+26,"Aluno_026",5
+27,"Aluno_027",5
+28,"Aluno_028",5
+29,"Aluno_029",5
+30,"Aluno_030",5
+31,"Aluno_031",6
+32,"Aluno_032",6
+33,"Aluno_033",6
+34,"Aluno_034",6
+35,"Aluno_035",6
+36,"Aluno_036",6

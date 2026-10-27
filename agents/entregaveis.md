@@ -41,8 +41,9 @@ Pendência real da Seção 3: colar screenshot do Power BI em
 7. Conclusões e recomendações para a coordenação
 8. Aprovação
 
-Números atuais são do **seed sintético**. Deixar isso explícito. Reproduzir no
-Power BI Desktop com `powerbi/tutorial-marco-3.md` (não Python).
+Números atuais são do **seed demo** (`gerar_seed.py --demo`: 36 alunos, 6 turmas,
+4 simulados). Deixar explícito que não é coleta real. Reproduzir no Power BI
+Desktop com `powerbi/tutorial-marco-3.md` (não Python).
 
 ## Outros marcos
 

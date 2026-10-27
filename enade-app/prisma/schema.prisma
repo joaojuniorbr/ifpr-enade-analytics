@@ -7,122 +7,133 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Dim_Aluno_Anonimo {
-  AlunoKey           Int              @id
-  CodigoAlunoAnonimo String           @unique(map: "CodigoAlunoAnonimo") @db.VarChar(32)
-  TurmaGrupo         String           @db.VarChar(64)
-  Fato_Respostas     Fato_Respostas[]
-  Tentativas         Tentativa[]
+model Dim_Dificuldade {
+  DificuldadeKey   Int                @id
+  Nivel            String             @unique(map: "Nivel") @db.VarChar(16)
+  Dim_Questao_Eixo Dim_Questao_Eixo[]
+  Fato_Respostas   Fato_Respostas[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model Dim_Questao {
-  QuestaoKey        Int                @id
+model Dim_Turma {
+  TurmaKey          Int                @id
+  TurmaGrupo        String             @unique(map: "TurmaGrupo") @db.VarChar(64)
+  Dim_Aluno_Anonimo Dim_Aluno_Anonimo[]
+  Fato_Respostas    Fato_Respostas[]
+}
+
+model Dim_Tempo {
+  TempoKey          Int                @id
+  Data              DateTime           @unique(map: "Data") @db.Date
+  NumeroSimulado    Int
+  CodigoSimulado    String             @unique(map: "CodigoSimulado") @db.VarChar(64)
+  DescricaoSimulado String             @db.VarChar(255)
+  Ano               Int
+  Mes               Int
+  NomeMes           String             @db.VarChar(20)
+  SemanaSemestre    Int
+  Fato_Respostas    Fato_Respostas[]
+  Simulado_Questoes Simulado_Questao[]
+  Tentativas        Tentativa[]
+}
+
+model Dim_Questao_Eixo {
+  QuestaoEixoKey    Int                @id
   CodigoQuestao     String             @unique(map: "CodigoQuestao") @db.VarChar(32)
   EixoTematico      String             @db.VarChar(128)
-  NivelDificuldade  String             @db.VarChar(16)
   Enunciado         String?            @db.Text
+  DificuldadeKey    Int
+  Dim_Dificuldade   Dim_Dificuldade    @relation(fields: [DificuldadeKey], references: [DificuldadeKey], onDelete: NoAction, onUpdate: NoAction, map: "Dim_Questao_Eixo_ibfk_1")
   Fato_Respostas    Fato_Respostas[]
   Alternativas      Alternativa[]
   Simulado_Questoes Simulado_Questao[]
   Tentativa_Itens   Tentativa_Item[]
 
   @@index([EixoTematico], map: "IX_Questao_Eixo")
+  @@index([DificuldadeKey], map: "IX_Questao_Dificuldade")
 }
 
-model Dim_Simulado {
-  SimuladoKey       Int                @id
-  CodigoSimulado    String             @unique(map: "CodigoSimulado") @db.VarChar(64)
-  NumeroAplicacao   Int
-  DescricaoSimulado String             @db.VarChar(255)
-  Fato_Respostas    Fato_Respostas[]
-  Simulado_Questoes Simulado_Questao[]
-  Tentativas        Tentativa[]
+model Dim_Aluno_Anonimo {
+  AlunoKey           Int              @id
+  CodigoAlunoAnonimo String           @unique(map: "CodigoAlunoAnonimo") @db.VarChar(32)
+  TurmaKey           Int
+  Dim_Turma          Dim_Turma        @relation(fields: [TurmaKey], references: [TurmaKey], onDelete: NoAction, onUpdate: NoAction, map: "Dim_Aluno_Anonimo_ibfk_1")
+  Fato_Respostas     Fato_Respostas[]
+  Tentativas         Tentativa[]
+
+  @@index([TurmaKey], map: "IX_Aluno_Turma")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model Dim_Tempo {
-  TempoKey       Int              @id
-  Data           DateTime         @unique(map: "Data") @db.Date
-  Ano            Int
-  Mes            Int
-  NomeMes        String           @db.VarChar(20)
-  SemanaSemestre Int
-  Fato_Respostas Fato_Respostas[]
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model Fato_Respostas {
   RespostaKey           Int               @id
   TempoKey              Int
+  QuestaoEixoKey        Int
+  DificuldadeKey        Int
+  TurmaKey              Int
   AlunoKey              Int
-  QuestaoKey            Int
-  SimuladoKey           Int
   RespostaDada          String            @db.VarChar(8)
   Acertou               Int
-  TempoRespostaSegundos Float?
+  TempoRespostaSegundos Int?
   Dim_Tempo             Dim_Tempo         @relation(fields: [TempoKey], references: [TempoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_1")
-  Dim_Aluno_Anonimo     Dim_Aluno_Anonimo @relation(fields: [AlunoKey], references: [AlunoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_2")
-  Dim_Questao           Dim_Questao       @relation(fields: [QuestaoKey], references: [QuestaoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_3")
-  Dim_Simulado          Dim_Simulado      @relation(fields: [SimuladoKey], references: [SimuladoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_4")
+  Dim_Questao_Eixo      Dim_Questao_Eixo  @relation(fields: [QuestaoEixoKey], references: [QuestaoEixoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_2")
+  Dim_Dificuldade       Dim_Dificuldade   @relation(fields: [DificuldadeKey], references: [DificuldadeKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_3")
+  Dim_Turma             Dim_Turma         @relation(fields: [TurmaKey], references: [TurmaKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_4")
+  Dim_Aluno_Anonimo     Dim_Aluno_Anonimo @relation(fields: [AlunoKey], references: [AlunoKey], onDelete: NoAction, onUpdate: NoAction, map: "Fato_Respostas_ibfk_5")
 
-  @@unique([AlunoKey, QuestaoKey, SimuladoKey], map: "AlunoKey")
-  @@index([AlunoKey], map: "IX_Fato_Aluno")
-  @@index([QuestaoKey], map: "IX_Fato_Questao")
-  @@index([SimuladoKey], map: "IX_Fato_Simulado")
+  @@unique([AlunoKey, QuestaoEixoKey, TempoKey], map: "AlunoKey")
   @@index([TempoKey], map: "IX_Fato_Tempo")
+  @@index([QuestaoEixoKey], map: "IX_Fato_Questao")
+  @@index([DificuldadeKey], map: "IX_Fato_Dificuldade")
+  @@index([TurmaKey], map: "IX_Fato_Turma")
+  @@index([AlunoKey], map: "IX_Fato_Aluno")
 }
 
-/// Alternativa de múltipla escolha. Cada questão tem uma única Correta = 1.
 model Alternativa {
-  AlternativaKey Int         @id @default(autoincrement())
-  QuestaoKey     Int
-  Letra          String      @db.VarChar(1)
-  Texto          String      @db.VarChar(1000)
+  AlternativaKey Int              @id @default(autoincrement())
+  QuestaoEixoKey Int
+  Letra          String           @db.VarChar(1)
+  Texto          String           @db.VarChar(1000)
   Correta        Int
-  Dim_Questao    Dim_Questao @relation(fields: [QuestaoKey], references: [QuestaoKey], onDelete: Cascade, onUpdate: NoAction, map: "Alternativa_ibfk_1")
+  Dim_Questao_Eixo Dim_Questao_Eixo @relation(fields: [QuestaoEixoKey], references: [QuestaoEixoKey], onDelete: Cascade, onUpdate: NoAction, map: "Alternativa_ibfk_1")
 
-  @@unique([QuestaoKey, Letra], map: "UQ_Alternativa_Questao_Letra")
-  @@index([QuestaoKey], map: "IX_Alternativa_Questao")
+  @@unique([QuestaoEixoKey, Letra], map: "UQ_Alternativa_Questao_Letra")
+  @@index([QuestaoEixoKey], map: "IX_Alternativa_Questao")
 }
 
-/// Perguntas que compõem um simulado. A ordem na prova é sorteada a cada tentativa.
 model Simulado_Questao {
-  SimuladoKey  Int
-  QuestaoKey   Int
-  Dim_Simulado Dim_Simulado @relation(fields: [SimuladoKey], references: [SimuladoKey], onDelete: Cascade, onUpdate: NoAction, map: "Simulado_Questao_ibfk_1")
-  Dim_Questao  Dim_Questao  @relation(fields: [QuestaoKey], references: [QuestaoKey], onDelete: Cascade, onUpdate: NoAction, map: "Simulado_Questao_ibfk_2")
+  TempoKey       Int
+  QuestaoEixoKey Int
+  Dim_Tempo      Dim_Tempo        @relation(fields: [TempoKey], references: [TempoKey], onDelete: Cascade, onUpdate: NoAction, map: "Simulado_Questao_ibfk_1")
+  Dim_Questao_Eixo Dim_Questao_Eixo @relation(fields: [QuestaoEixoKey], references: [QuestaoEixoKey], onDelete: Cascade, onUpdate: NoAction, map: "Simulado_Questao_ibfk_2")
 
-  @@id([SimuladoKey, QuestaoKey])
-  @@index([QuestaoKey], map: "IX_Simulado_Questao_Questao")
+  @@id([TempoKey, QuestaoEixoKey])
+  @@index([QuestaoEixoKey], map: "IX_Simulado_Questao_Questao")
 }
 
-/// Uma realização do simulado. O aluno pode ter várias do mesmo simulado.
 model Tentativa {
   TentativaKey      Int               @id @default(autoincrement())
   AlunoKey          Int
-  SimuladoKey       Int
+  TempoKey          Int
   IniciadaEm        DateTime          @default(now())
   FinalizadaEm      DateTime?
   Acertos           Int               @default(0)
   TotalQuestoes     Int
   OrdemQuestoes     String            @db.VarChar(4000)
   Dim_Aluno_Anonimo Dim_Aluno_Anonimo @relation(fields: [AlunoKey], references: [AlunoKey], onDelete: NoAction, onUpdate: NoAction, map: "Tentativa_ibfk_1")
-  Dim_Simulado      Dim_Simulado      @relation(fields: [SimuladoKey], references: [SimuladoKey], onDelete: NoAction, onUpdate: NoAction, map: "Tentativa_ibfk_2")
+  Dim_Tempo         Dim_Tempo         @relation(fields: [TempoKey], references: [TempoKey], onDelete: NoAction, onUpdate: NoAction, map: "Tentativa_ibfk_2")
   Itens             Tentativa_Item[]
 
-  @@index([AlunoKey, SimuladoKey], map: "IX_Tentativa_Aluno_Simulado")
-  @@index([SimuladoKey], map: "IX_Tentativa_Simulado")
+  @@index([AlunoKey, TempoKey], map: "IX_Tentativa_Aluno_Tempo")
+  @@index([TempoKey], map: "IX_Tentativa_Tempo")
 }
 
 model Tentativa_Item {
-  TentativaKey Int
-  QuestaoKey   Int
-  LetraMarcada String      @db.VarChar(1)
-  Acertou      Int
-  Tentativa    Tentativa   @relation(fields: [TentativaKey], references: [TentativaKey], onDelete: Cascade, onUpdate: NoAction, map: "Tentativa_Item_ibfk_1")
-  Dim_Questao  Dim_Questao @relation(fields: [QuestaoKey], references: [QuestaoKey], onDelete: NoAction, onUpdate: NoAction, map: "Tentativa_Item_ibfk_2")
+  TentativaKey   Int
+  QuestaoEixoKey Int
+  LetraMarcada   String           @db.VarChar(1)
+  Acertou        Int
+  Tentativa      Tentativa        @relation(fields: [TentativaKey], references: [TentativaKey], onDelete: Cascade, onUpdate: NoAction, map: "Tentativa_Item_ibfk_1")
+  Dim_Questao_Eixo Dim_Questao_Eixo @relation(fields: [QuestaoEixoKey], references: [QuestaoEixoKey], onDelete: NoAction, onUpdate: NoAction, map: "Tentativa_Item_ibfk_2")
 
-  @@id([TentativaKey, QuestaoKey])
-  @@index([QuestaoKey], map: "IX_Tentativa_Item_Questao")
+  @@id([TentativaKey, QuestaoEixoKey])
+  @@index([QuestaoEixoKey], map: "IX_Tentativa_Item_Questao")
 }

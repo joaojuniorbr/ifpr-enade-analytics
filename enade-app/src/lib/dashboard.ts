@@ -33,10 +33,10 @@ export async function loadAdminDashboard() {
 	const facts = await prisma.fato_Respostas.findMany({
 		select: {
 			Acertou: true,
-			Dim_Questao: { select: { CodigoQuestao: true, EixoTematico: true } },
-			Dim_Aluno_Anonimo: { select: { TurmaGrupo: true } },
-			Dim_Simulado: {
-				select: { NumeroAplicacao: true, DescricaoSimulado: true },
+			Dim_Questao_Eixo: { select: { CodigoQuestao: true, EixoTematico: true } },
+			Dim_Turma: { select: { TurmaGrupo: true } },
+			Dim_Tempo: {
+				select: { NumeroSimulado: true, CodigoSimulado: true },
 			},
 		},
 	});
@@ -50,13 +50,13 @@ export async function loadAdminDashboard() {
 	for (const fact of facts) {
 		const value = fact.Acertou === 1 ? 1 : 0;
 		hits += value;
-		accumulate(axes, fact.Dim_Questao.EixoTematico, value);
-		accumulate(classes, fact.Dim_Aluno_Anonimo.TurmaGrupo, value);
-		accumulate(exams, `Aplic. ${fact.Dim_Simulado.NumeroAplicacao}`, value);
-		const code = fact.Dim_Questao.CodigoQuestao;
+		accumulate(axes, fact.Dim_Questao_Eixo.EixoTematico, value);
+		accumulate(classes, fact.Dim_Turma.TurmaGrupo, value);
+		accumulate(exams, `Aplic. ${fact.Dim_Tempo.NumeroSimulado}`, value);
+		const code = fact.Dim_Questao_Eixo.CodigoQuestao;
 		const question = questions.get(code) ?? {
 			code,
-			axis: fact.Dim_Questao.EixoTematico,
+			axis: fact.Dim_Questao_Eixo.EixoTematico,
 			hits: 0,
 			total: 0,
 		};

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import type { Level } from "@/lib/axes";
+import { dificuldadeKeyFromLevel } from "@/lib/difficulty";
 import { databaseMessage } from "@/lib/database";
 import { prisma } from "@/lib/prisma";
 import { alternativesFromForm, questionSchema, zodMessage } from "@/lib/validation";
@@ -33,25 +35,26 @@ export async function saveQuestion(formData: FormData) {
   if (!values) return;
 
   try {
+    const dificuldadeKey = await dificuldadeKeyFromLevel(values.level as Level);
     await prisma.$transaction(async (tx) => {
       const savedKey = editing
         ? key
-        : ((await tx.dim_Questao.aggregate({ _max: { QuestaoKey: true } }))._max.QuestaoKey ?? 0) + 1;
+        : ((await tx.dim_Questao_Eixo.aggregate({ _max: { QuestaoEixoKey: true } }))._max.QuestaoEixoKey ?? 0) + 1;
       const data = {
         CodigoQuestao: values.code,
         EixoTematico: values.axis,
-        NivelDificuldade: values.level,
+        DificuldadeKey: dificuldadeKey,
         Enunciado: values.statement,
       };
       if (editing) {
-        await tx.dim_Questao.update({ where: { QuestaoKey: key }, data });
+        await tx.dim_Questao_Eixo.update({ where: { QuestaoEixoKey: key }, data });
       } else {
-        await tx.dim_Questao.create({ data: { QuestaoKey: savedKey, ...data } });
+        await tx.dim_Questao_Eixo.create({ data: { QuestaoEixoKey: savedKey, ...data } });
       }
-      await tx.alternativa.deleteMany({ where: { QuestaoKey: savedKey } });
+      await tx.alternativa.deleteMany({ where: { QuestaoEixoKey: savedKey } });
       await tx.alternativa.createMany({
         data: values.alternatives.map((item) => ({
-          QuestaoKey: savedKey,
+          QuestaoEixoKey: savedKey,
           Letra: item.letter,
           Texto: item.text,
           Correta: item.correct ? 1 : 0,
@@ -59,9 +62,9 @@ export async function saveQuestion(formData: FormData) {
       });
       if (linkExam) {
         await tx.simulado_Questao.upsert({
-          where: { SimuladoKey_QuestaoKey: { SimuladoKey: simuladoKey, QuestaoKey: savedKey } },
+          where: { TempoKey_QuestaoEixoKey: { TempoKey: simuladoKey, QuestaoEixoKey: savedKey } },
           update: {},
-          create: { SimuladoKey: simuladoKey, QuestaoKey: savedKey },
+          create: { TempoKey: simuladoKey, QuestaoEixoKey: savedKey },
         });
       }
     });
@@ -82,7 +85,7 @@ export async function deleteQuestion(formData: FormData) {
   await requireAdmin();
   const key = Number(formData.get("id"));
   try {
-    await prisma.dim_Questao.delete({ where: { QuestaoKey: key } });
+    await prisma.dim_Questao_Eixo.delete({ where: { QuestaoEixoKey: key } });
   } catch (error) {
     const message = databaseMessage(error, "delete");
     if (message) redirect(`/admin/questoes?error=${encodeURIComponent(message)}`);

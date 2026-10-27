@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { databaseMessage } from "@/lib/database";
 import { prisma } from "@/lib/prisma";
+import { ensureTurmaKey } from "@/lib/turma";
 import { studentSchema, zodMessage } from "@/lib/validation";
 
 function destination(key: number | null, error: string) {
@@ -25,10 +26,11 @@ export async function saveStudent(formData: FormData) {
   const values = parsed.data;
 
   try {
+    const turmaKey = await ensureTurmaKey(values.classGroup);
     if (editing) {
       await prisma.dim_Aluno_Anonimo.update({
         where: { AlunoKey: key },
-        data: { CodigoAlunoAnonimo: values.code, TurmaGrupo: values.classGroup },
+        data: { CodigoAlunoAnonimo: values.code, TurmaKey: turmaKey },
       });
     } else {
       const latest = await prisma.dim_Aluno_Anonimo.aggregate({ _max: { AlunoKey: true } });
@@ -36,7 +38,7 @@ export async function saveStudent(formData: FormData) {
         data: {
           AlunoKey: (latest._max.AlunoKey ?? 0) + 1,
           CodigoAlunoAnonimo: values.code,
-          TurmaGrupo: values.classGroup,
+          TurmaKey: turmaKey,
         },
       });
     }
